@@ -11,20 +11,21 @@ import App from './App.vue'
 import { createApp } from 'vue'
 
 // Plugins
-import { registerPlugins } from '@/plugins'
-import UIKit from "@foxone/uikit"
-import Passport from "@foxone/mixin-passport"
+import { registerPlugins,listenWindow } from '@/plugins'
 import 'vuetify/dist/vuetify.min.css'
+import '@mdi/font/css/materialdesignicons.css'
 
 
 const app = createApp(App)
 
 registerPlugins(app)
-
-app.use(UIKit)
-app.use(Passport, {
-  infuraId: '',
-})
-
-
+listenWindow(app)
 app.mount('#app')
+
+
+// 设置全局错误处理程序
+app.config.errorHandler = (err, vm, info) => {
+  console.error('Error:', err)
+  console.error('Vue component:', vm)
+  console.error('Error info:', info)
+}

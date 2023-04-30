@@ -1,5 +1,5 @@
 <template>
-  <button @click="login">Auth</button>
+  <v-btn @click="login">Auth</v-btn>
 </template>
 
 
@@ -13,7 +13,7 @@ export default defineComponent({
     const login = async () => {
     const { token, channel } = await passport.auth({
       origin: "FoxONE UIKit",
-      authMethods: ["metamask", "walletconnect", "mixin", "fennec"],
+      authMethods: ["metamask", "walletconnect", "mixin", "fennec", "onekey"],
       clientId: "fbd26bc6-3d04-4964-a7fe-a540432b16e2",
       scope: "PROFILE:READ ASSETS:READ",
       pkce: true,
@@ -24,28 +24,32 @@ export default defineComponent({
         return {
             statement: "You'll login to your_app by the signature",
             expirationTime: new Date(
-              new Date().getTime() + 1000 * 60 * 3
+              new Date().getTime() + 1000 * 60 * 100
             ).toISOString(),
           };
         },
-        onDistributeToken: (params: any) => {
-          if (params.type === 'mixin_token') return Promise.resolve({ token: 'mixin_token', mixin_token: params.token });
-          else if (params.type === 'signed_message') return Promise.resolve({ token: params.signature, mixin_token: params.message });
-          return Promise.resolve({ token: 'mixin_code', mixin_token: params.code });
+        onDistributeToken: async (params: any) =>  {
+          console.log(params)
+          // if (params.type === 'mixin_token')  {
+          //   console.log(params)
+          //   return { token: 'mixin_token', mixin_token: params.token };
+          // }else if (params.type === 'signed_message'){
+          //   return { token: params.signature, mixin_token: params.signature };
+          // }
+          // mock
+          //
+          const accessToken = "123456"
+
+          return { token: accessToken, mixin_token: '123456789' };
         },
-        afterDisconnect()  {
-          // sign a message
-        return {
-            statement: "You are disconnect!",
-            expirationTime: new Date(
-              new Date().getTime() + 1000 * 60 * 3
-            ).toISOString(),
-          };
-        }
+        afterDisconnect() {
+            console.log("ni")
+        },
       }
     });
 
     console.log(token, channel)
+    // 123456, metamusk
     }
 
     return {

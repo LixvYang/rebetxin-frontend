@@ -10,5 +10,8 @@ module.exports = {
   ],
   rules: {
     'vue/multi-word-component-names': 'off',
+    'vue/no-reserved-component-names': 'off',
+    'vue/valid-v-model': 'off',
+    'vue/no-use-v-if-with-v-for': 'off'
   },
 }

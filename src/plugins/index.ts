@@ -7,11 +7,16 @@
 // Plugins
 import { loadFonts } from './webfontloader'
 import router from '../router'
-import { createVuetify } from 'vuetify'
 import { usePresets } from "@foxone/uikit/presets";
+import { createVuetify } from 'vuetify'
+import { md1 } from 'vuetify/blueprints'
+import { aliases, mdi } from 'vuetify/iconsets/mdi'
+import UIKit from "@foxone/uikit"
+import Passport from "@foxone/mixin-passport"
 
 // Types
 import type { App } from 'vue'
+import store from '@/store';
 
 const messages = {
   en: {
@@ -23,16 +28,25 @@ const messages = {
     // ... your Chinese translations
     "uikit.connect_wallet": "连接钱包",
     "uikit.gas_fee_hint": "gas费用"
-  }
+  },
 };
 
 const vuetify = createVuetify(
   usePresets({
     // overwrite vuetify options
+    blueprint: md1,
+    ssr: true,
     locale: {
       locale: 'zhHans',
       fallback: 'en',
       messages
+    },
+    icons: {
+      defaultSet: 'mdi',
+      aliases,
+      sets: {
+        mdi,
+      }
     },
   })
 )
@@ -42,4 +56,15 @@ export function registerPlugins (app: App) {
   app
     .use(vuetify)
     .use(router)
+    .use(store)
+    .use(UIKit)
+    .use(Passport, {
+      infuraId: '',
+    })
+}
+
+export function listenWindow(app: App) {
+  window.addEventListener('resize', () => {
+    store.commit('main/changeIsMobile', window.innerWidth <= 600)
+  })
 }
