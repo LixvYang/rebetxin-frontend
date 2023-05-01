@@ -1,5 +1,5 @@
 <template>
-  <div class="main" :style="{ paddingTop: !isMobile ? '0' : '50px' }">
+  <div class="main" :style="{ paddingTop: !isMobile ? '0' : '50px', paddingBottom: !isMobile ? '0' : '50px' }">
     <nav-search />
     <category-tab />
   </div>
@@ -28,6 +28,9 @@ export default defineComponent({
 </script>
 
 <style scoped>
-
+.main {
+  position: absolute;
+  width: 100%;
+}
 
 </style>

@@ -3,7 +3,7 @@
     <v-card
     class="mx-auto"
     color="grey-lighten-3"
-    max-width="500"
+    max-width="700"
   >
     <v-card-text>
       <v-text-field

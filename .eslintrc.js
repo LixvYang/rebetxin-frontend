@@ -12,6 +12,7 @@ module.exports = {
     'vue/multi-word-component-names': 'off',
     'vue/no-reserved-component-names': 'off',
     'vue/valid-v-model': 'off',
-    'vue/no-use-v-if-with-v-for': 'off'
+    'vue/no-use-v-if-with-v-for': 'off',
+    'vue/no-duplicate-attributes': 'off'
   },
 }
