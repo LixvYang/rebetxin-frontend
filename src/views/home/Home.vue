@@ -1,27 +1,32 @@
 <template>
   <div class="home">
-    <Header class="header"></Header>
     <Main class="main"></Main>
-    <Footer></Footer>
+
+    <KeepAlive>
+      <Footer class="footer"></Footer>
+    </KeepAlive>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import Header from '@/components/header'
 import Footer from '@/components/footer'
 import Main from '@/components/main'
 
+import { useRoute } from 'vue-router'
+
 export default defineComponent({
   components: {
-    Header,
+    Main,
     Footer,
-    Main
   },
   setup () {
+    const route = useRoute()
+    const routePath = route.path
+    console.log(routePath)
 
     return {
-      Header
+      routePath
     }
   }
 })

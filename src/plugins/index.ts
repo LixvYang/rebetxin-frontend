@@ -58,9 +58,7 @@ export function registerPlugins (app: App) {
     .use(router)
     .use(store)
     .use(UIKit)
-    .use(Passport, {
-      infuraId: '',
-    })
+    .use(Passport, {})
 }
 
 export function listenWindow(app: App) {

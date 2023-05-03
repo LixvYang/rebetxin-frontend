@@ -68,38 +68,84 @@
       </v-btn>
     </v-toolbar>
   </div>
+
+  <snack-bar :snackbar="snackbar" :timeout="2000" :text="snackBarText" />
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { ref, computed } from 'vue';
+import { usePassport } from "@foxone/mixin-passport/lib/helper";
+import { handleProfileClick } from '../config/menu-item'
 import store from '@/store'
+import SnackBar from '@/components/snackbar/src/snack-bar.vue';
 
 export default defineComponent({
+  components: {
+    SnackBar
+  },
   setup() {
+    const passport = usePassport();
     const isMenuOpen = ref(false)
     const isMobile = computed(() => store.state.main.isMobile)
-    const handleProfileClick = () => {
-      console.log('handleProfileClick')
+    const snackbar = ref(false)
+    const snackBarText = ref('更多功能正在开发中')
+
+    const handleConnectClick = async () => {
+      const { token, channel, mixin_token } = await passport.auth({
+        origin: "FoxONE UIKit",
+        authMethods: ["metamask", "walletconnect", "mixin", "fennec", "onekey"],
+        clientId: "fbd26bc6-3d04-4964-a7fe-a540432b16e2",
+        scope: "PROFILE:READ ASSETS:READ",
+        pkce: true,
+        signMessage: true,
+        hooks: {
+        beforeSignMessage: async () => {
+          // sign a message
+          return {
+              statement: "You'll login to your_app by the signature",
+              expirationTime: new Date(
+                new Date().getTime() + 1000 * 60 * 100
+              ).toISOString(),
+            };
+          },
+          onDistributeToken: async (params: any) =>  {
+            if (params.type === 'mixin_token')  {
+              return { token: params.token, mixin_token: params.token };
+            }else if (params.type === 'signed_message'){
+              return { token: params.signature, mixin_token: params.signature };
+            }
+            return { token: params.mixin_code, mixin_token: params.code };
+          },
+          afterDisconnect() {
+            console.log("ni")
+          },
+        }
+      });
+    }
+
+    const profileClick = () => {
+      handleProfileClick(snackbar)
     }
 
     const menuItems = [
-      { title: 'Profile', handle: handleProfileClick, icon: 'mdi-domain' },
-      { title: 'Setting', to: '/features' },
-      { title: 'Language', to: '/marketplace' },
+      { title: 'Login', handle: handleConnectClick, icon: 'mdi-domain' },
+      { title: 'Profile', icon: 'mdi-domain', to: '/main/profile'   },
+      { title: 'Settings', handle: profileClick },
+      { title: 'Language', handle: profileClick },
       { title: 'Disconnect' },
     ];
 
 
-    // setInterval(() => {
-    //   console.log(isMobile.value)
-    // },1000)
-
     return {
+      snackbar,
+      passport,
       isMenuOpen,
       isMobile,
       menuItems,
-      handleProfileClick
+      snackBarText,
+      handleProfileClick,
+      handleConnectClick
     }
   }
 })

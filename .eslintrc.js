@@ -13,6 +13,7 @@ module.exports = {
     'vue/no-reserved-component-names': 'off',
     'vue/valid-v-model': 'off',
     'vue/no-use-v-if-with-v-for': 'off',
-    'vue/no-duplicate-attributes': 'off'
+    'vue/no-duplicate-attributes': 'off',
+    'vue/no-mutating-props': 'off'
   },
 }

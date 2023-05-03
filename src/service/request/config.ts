@@ -2,11 +2,11 @@ let BASE_URL = ''
 const TIME_OUT = 10000
 
 if (process.env.NODE_ENV === 'development') {
-  BASE_URL = 'http://127.0.0.1:8002/api/v1/'
+  BASE_URL = 'http://localhost:3000/api/v1/'
 } else if (process.env.NODE_ENV === 'production') {
-  BASE_URL = 'https://localhost:64147/api/v1/'
+  BASE_URL = 'http://43.143.154.162:3000/api/v1/'
 } else {
-  BASE_URL = '/test'
+  BASE_URL = 'http://localhost:3000/api/v1/'
 }
 
 export { BASE_URL, TIME_OUT }
