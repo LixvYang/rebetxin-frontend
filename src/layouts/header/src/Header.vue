@@ -79,6 +79,7 @@ import { usePassport } from "@foxone/mixin-passport/lib/helper";
 import { handleProfileClick } from '../config/menu-item'
 import store from '@/store'
 import SnackBar from '@/components/snackbar/src/snack-bar.vue';
+import { signin } from '@/service/user/signin';
 
 export default defineComponent({
   components: {
@@ -121,7 +122,10 @@ export default defineComponent({
             console.log("ni")
           },
         }
-      });
+      })
+      const resp = await signin("mixin_token", token, "", "")
+      console.log(resp)
+      console.log(resp.data.token)
     }
 
     const profileClick = () => {

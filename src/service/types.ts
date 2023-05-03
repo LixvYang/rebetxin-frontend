@@ -1,5 +1,5 @@
-export interface MixinTwitterRes<T = any> {
+export interface BetxinRes<T = any> {
   code: number
-  message: string
+  msg: string
   data: T
 }

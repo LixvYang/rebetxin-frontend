@@ -12,7 +12,7 @@ class Request {
   constructor(config: RequestConfig) {
     // 创建axios实例
     this.instance = axios.create(config)
-
+    this.instance.defaults.headers.common['Access-Control-Allow-Origin'] = process.env.VUE_APP_Access_Control_Allow_Origin;
     // 保存基本信息
     this.showLoading = config.showLoading ?? DEAFULT_LOADING
     this.interceptors = config.interceptors
