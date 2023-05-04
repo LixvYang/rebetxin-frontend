@@ -18,9 +18,12 @@ export enum UserAPI {
   PostUser = '/user/signin'
 }
 
-export async function getUserInfo() {
+export async function getUserInfo(token: string) {
   return Request.get<BetxinRes<UserInfo>>({
     url: UserAPI.GetUserInfo,
     showLoading: false,
+    headers: {
+      'Authorization': token,
+    }
   })
 }

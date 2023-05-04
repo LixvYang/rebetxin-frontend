@@ -80,6 +80,7 @@ import { handleProfileClick } from '../config/menu-item'
 import store from '@/store'
 import SnackBar from '@/components/snackbar/src/snack-bar.vue';
 import { signin } from '@/service/user/signin';
+import { getUserInfo } from '@/service/user/getuserinfo';
 
 export default defineComponent({
   components: {
@@ -123,9 +124,15 @@ export default defineComponent({
           },
         }
       })
+
+      console.log(token, channel, mixin_token)
       const resp = await signin("mixin_token", token, "", "")
       console.log(resp)
       console.log(resp.data.token)
+      const res = await getUserInfo(resp.data.token!)
+      console.log('====================================');
+      console.log(res);
+      console.log('====================================');
     }
 
     const profileClick = () => {
