@@ -76,11 +76,9 @@
 import { defineComponent } from 'vue'
 import { ref, computed } from 'vue';
 import { usePassport } from "@foxone/mixin-passport/lib/helper";
-import { handleProfileClick } from '../config/menu-item'
-import store from '@/store'
+import { handleDiscontent, handleProfileClick } from '../config/menu-item'
+import { useStore } from '@/store'
 import SnackBar from '@/components/snackbar/src/snack-bar.vue';
-import { signin } from '@/service/user/signin';
-import { getUserInfo } from '@/service/user/getuserinfo';
 
 export default defineComponent({
   components: {
@@ -92,6 +90,9 @@ export default defineComponent({
     const isMobile = computed(() => store.state.main.isMobile)
     const snackbar = ref(false)
     const snackBarText = ref('更多功能正在开发中')
+    const isMvm = ref(false)
+    const signMsg = ref('')
+    const store = useStore()
 
     const handleConnectClick = async () => {
       const { token, channel, mixin_token } = await passport.auth({
@@ -115,28 +116,46 @@ export default defineComponent({
             if (params.type === 'mixin_token')  {
               return { token: params.token, mixin_token: params.token };
             }else if (params.type === 'signed_message'){
+              isMvm.value = true
+              signMsg.value = params.message
               return { token: params.signature, mixin_token: params.signature };
             }
             return { token: params.mixin_code, mixin_token: params.code };
           },
           afterDisconnect() {
-            console.log("ni")
+            console.log("Disconnect")
           },
         }
       })
-
-      console.log(token, channel, mixin_token)
-      const resp = await signin("mixin_token", token, "", "")
-      console.log(resp)
-      console.log(resp.data.token)
-      const res = await getUserInfo(resp.data.token!)
-      console.log('====================================');
-      console.log(res);
-      console.log('====================================');
+      if (!isMvm.value) {
+        store.dispatch('user/handleUserLogin', {
+          'login_method': 'mixin_token',
+          'token': token
+        })
+      } else {
+        store.dispatch('user/handleUserLogin', {
+          'login_method': 'mvm',
+          'sign': token,
+          'sign_msg': signMsg
+        })
+      }
+      setTimeout(() => {
+        if (store.state.user.userInfo.uid) {
+          isMenuOpen.value = false
+          snackBarText.value = 'Success Connect'
+          handleProfileClick(snackbar)
+        }
+      }, 3000);
     }
 
     const profileClick = () => {
+      snackBarText.value = '更多功能正在开发中'
       handleProfileClick(snackbar)
+    }
+
+    const discontentClick = () => {
+      snackBarText.value = 'Discontent Success'
+      handleDiscontent(snackbar)
     }
 
     const menuItems = [
@@ -144,7 +163,7 @@ export default defineComponent({
       { title: 'Profile', icon: 'mdi-domain', to: '/main/profile'   },
       { title: 'Settings', handle: profileClick },
       { title: 'Language', handle: profileClick },
-      { title: 'Disconnect' },
+      { title: 'Disconnect', handle: discontentClick },
     ];
 
 
@@ -155,8 +174,6 @@ export default defineComponent({
       isMobile,
       menuItems,
       snackBarText,
-      handleProfileClick,
-      handleConnectClick
     }
   }
 })

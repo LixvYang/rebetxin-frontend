@@ -17,53 +17,58 @@
         </v-card-text>
       </v-card>
       <v-divider></v-divider>
-      <v-card>
-        <v-tabs
-          grow
-          show-arrows
-          v-model="tab"
-          color="deep-purple-accent-4"
-          align-tabs="center"
-          active-class="purple--text"
-        >
-          <v-tab v-for="i in 2" :key="i" :value="i">Options {{ i }}</v-tab>
-        </v-tabs>
-        <v-divider></v-divider>
-
-        <v-window v-model="tab">
-          <v-window-item
-            v-for="n in 2"
-            :key="n"
-            :value="n"
+        <v-card>
+          <v-tabs
+            grow
+            show-arrows
+            v-model="tab"
+            color="deep-purple-accent-4"
+            align-tabs="center"
+            active-class="purple--text"
           >
-          <topic-list />
-          </v-window-item>
-        </v-window>
-      </v-card>
-    </v-container>
+            <v-tab :value="tab.value" v-for="tab in tabs" :key="tab.value">{{ tab.value }}</v-tab>
+          </v-tabs>
+          <v-divider></v-divider>
+
+          <v-window v-model="tab">
+            <v-window-item
+            :value="tab.value" v-for="tab in tabs" :key="tab.value"
+            >
+            <component :is="tab.value"></component>
+            </v-window-item>
+          </v-window>
+        </v-card>
+      </v-container>
   </div>
 </template>
 
 <script lang="ts">
 import { ref } from 'vue'
 import { defineComponent } from 'vue'
-import TopicList from '@/components/topic-list'
+import Collect from './cpns/collect.vue'
+import Purchase from './cpns/purchase.vue'
+import { useStore } from '@/store'
+import { computed } from 'vue'
+import  { tabs } from './cpns/tab-config'
 
 export default defineComponent({
   components: {
-    TopicList
+    Collect,
+    Purchase
   },
   setup () {
-    const name = '张三'
-    const intro = '我是一名前端工程师，擅长 Vue.js 和 React.js。'
-    const avatarUrl = 'https://cdn.vuetifyjs.com/images/profiles/marcus.jpg'
     const tab = ref(1)
+    const store = useStore()
+    const name = computed(() => store.state.user.userInfo.full_name)
+    const intro = computed(() => store.state.user.userInfo.biography)
+    const avatarUrl = computed(() => store.state.user.userInfo.avatar_url)
 
     return {
       name,
       intro,
       avatarUrl,
-      tab
+      tab,
+      tabs
     }
   }
 })

@@ -113,7 +113,6 @@ export default defineComponent({
       slug: window.location.pathname,
       siteId: '2',
       locale: "en",
-      // show the link to the arweave transaction page if possible
       showLink: true,
       container: '#talkee-comments',
       auth: {
@@ -124,42 +123,6 @@ export default defineComponent({
   setup () {
     const positiveValue = 60
     const negativeColor = 'red'
-
-    // function installTalkee() {
-    //   const talkeeOpts = {
-    //     apiBase: "https://talkee-api.pando.im/api",
-    //     slug: window.location.pathname,
-    //     // show the link to the arweave transaction page if possible
-    //     showLink: true,
-    //     // the site id, required
-    //     siteId: "2",
-    //     // the container selector to render the talkee
-    //     container: "#talkee-comments",
-    //     // default locale is en
-    //     locale: "en",
-    //     // add supported auth methods
-    //     auth: {
-    //       authMethods: ["metamask", "walletconnect", "mixin", "fennec"],
-    //     }
-    //   };
-
-    //   const _checkTalkee = () => {
-    //     return window.Talkee && window.Talkee.install && window.Vue;
-    //   }
-    //   setTimeout(() => {
-    //     if (_checkTalkee()) {
-    //       if (document.getElementById("comments")) {
-    //         window.Talkee.show(talkeeOpts);
-    //       }
-    //     } else {
-    //       // try again
-    //       installTalkee();
-    //     }
-    //   }, 1000);
-    // }
-    // installTalkee();
-
-
 
     return {
       positiveValue,

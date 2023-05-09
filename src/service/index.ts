@@ -1,4 +1,5 @@
 // service统一出口
+import cache from '@/plugins/cache'
 import HYRequest from './request'
 import { BASE_URL, TIME_OUT } from './request/config'
 // import localCache from '@/utils/cache/cache'
@@ -8,14 +9,14 @@ const hyRequest = new HYRequest({
   timeout: TIME_OUT,
   withCredentials: true,
   interceptors: {
-    // requestInterceptor: (config) => {
-      // // 携带token的拦截
-      // const _mixin_twitter = localCache.getCache('_mixin_twitter')
-      // if (_mixin_twitter) {
-      //   config.headers!.Authorization = `Bearer ${_mixin_twitter}`
-      // }
-      // return config
-    // },
+    requestInterceptor: (config) => {
+      // 携带token的拦截
+      const token = cache.getCache('_betxin_token')
+      if (token) {
+        config.headers!.Authorization = `${token}`
+      }
+      return config
+    },
     requestInterceptorCatch: (err) => {
       return err
     },

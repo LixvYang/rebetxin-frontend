@@ -1,25 +1,26 @@
 <template>
-  <div class="home">
-    <Main class="main"></Main>
+  <div class="purchase">
+    <topic-list />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import Main from '@/layouts/main'
+import TopicList from '@/components/topic-list'
 
 
 export default defineComponent({
   components: {
-    Main,
+    TopicList
   },
   setup () {
 
-    return {
-    }
+
+    return {}
   }
 })
 </script>
 
 <style scoped>
+
 </style>

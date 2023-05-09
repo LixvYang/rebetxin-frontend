@@ -8,16 +8,14 @@
         align-tabs="center"
         active-class="purple--text"
       >
-        <v-tab v-for="i in 6" :key="i" :value="i">Options {{ i }}</v-tab>
+        <v-tab :value="tab.value" v-for="tab in tabs" :key="tab.value">{{ tab.value }}</v-tab>
       </v-tabs>
 
       <v-window v-model="tab">
         <v-window-item
-          v-for="n in 6"
-          :key="n"
-          :value="n"
+          :value="tab.value" v-for="tab in tabs" :key="tab.value"
         >
-        <topic-list />
+        <component :is="tab.value"></component>
         </v-window-item>
       </v-window>
     </v-card>
@@ -27,17 +25,31 @@
 <script lang="ts">
 import { ref } from 'vue';
 import { defineComponent } from 'vue'
+import {tabs} from './tab-config'
 import TopicList from '@/components/topic-list/index'
+import Crypto from '@/layouts/topic-category/Crypto';
+import Business from '@/layouts/topic-category/Buisiness';
+import New from '@/layouts/topic-category/New';
+import Politics from '@/layouts/topic-category/Politics';
+import Sports from '@/layouts/topic-category/Sports';
+import Trending from '@/layouts/topic-category/Trending';
 
 export default defineComponent({
   components: {
-    TopicList
+    TopicList,
+    Crypto,
+    Business,
+    New,
+    Politics,
+    Sports,
+    Trending
   },
   setup () {
     const tab = ref(1)
 
     return {
-      tab
+      tab,
+      tabs
     }
   }
 })
