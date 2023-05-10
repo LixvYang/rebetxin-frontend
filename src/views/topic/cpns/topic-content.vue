@@ -124,6 +124,7 @@ export default defineComponent({
     const positiveValue = 60
     const negativeColor = 'red'
 
+
     return {
       positiveValue,
       negativeColor

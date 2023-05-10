@@ -4,7 +4,7 @@
       <v-tabs
         show-arrows
         v-model="tab"
-        color="deep-purple-accent-4"
+        color="teal"
         align-tabs="center"
         active-class="purple--text"
       >

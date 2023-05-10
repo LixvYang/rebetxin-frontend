@@ -9,7 +9,7 @@ export enum UserAPI {
 
 export async function getUserInfo() {
   return Request.get<BetxinRes<UserInfo>>({
-    baseURL: 'http://0.0.0.0:3004/api/v1/user',
+    url: UserAPI.GetUserInfo,
     showLoading: false,
     maxRedirects: 5,
     maxBodyLength: 10 * 1024 * 1024, // 最大响应体大小（10 MB）
@@ -24,7 +24,7 @@ export async function signin(login_method?: string, mixin_token?: string, sign?:
     sign_msg: sign_msg
   }
   return Request.post<BetxinRes<SigninRespData>>({
-    baseURL: 'http://0.0.0.0:3004/api/v1/user/signin',
+    url: UserAPI.PostUser,
     showLoading: false,
     data: JSON.stringify(data),
     headers: {

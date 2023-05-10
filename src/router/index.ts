@@ -27,6 +27,10 @@ const routes = [
           {
             path: '/main/profile',
             component: () => import(/* webpackChunkName: "profile" */ '@/views/profile/Profile.vue')
+          },
+          {
+            path: '/main/board',
+            component: () => import(/* webpackChunkName: "profile" */ '@/views/profile/Profile.vue')
           }
         ]
       },

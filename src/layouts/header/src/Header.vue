@@ -10,7 +10,7 @@
         <v-btn
           class="notify"
           icon="mdi mdi-bell"
-          color="purple-darken-2"
+          color="teal"
         ></v-btn>
       </v-app-bar>
 
@@ -27,7 +27,7 @@
             <v-list-item-title>{{ item.title }}</v-list-item-title>
           </v-list-item>
           <v-divider></v-divider>
-          <v-list-item to="/login">
+          <v-list-item  >
             <v-icon>mdi-login</v-icon>
             <v-list-item-title>Login</v-list-item-title>
           </v-list-item>

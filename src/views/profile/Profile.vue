@@ -7,7 +7,7 @@
       >
         <v-card-text class="pt-4">
           <v-avatar
-            color="grey"
+            color="teal"
             size="5rem"
             :image="avatarUrl"
           >
@@ -22,7 +22,7 @@
             grow
             show-arrows
             v-model="tab"
-            color="deep-purple-accent-4"
+            color="teal"
             align-tabs="center"
             active-class="purple--text"
           >
