@@ -6,7 +6,7 @@
     >
       <v-img
         height="200"
-        src="https://cdn.pixabay.com/photo/2020/07/12/07/47/bee-5396362_1280.jpg"
+        :src="topic.img_url"
         cover
         class="text-white"
       >
@@ -25,11 +25,11 @@
 
         </v-toolbar>
         <v-card-title class="text-left align-end" style="position: absolute; bottom: 0;">
-          Your Title
+          {{topic.title}}
         </v-card-title>
 
         <v-card-title class="text-left align-end" style="position: absolute; bottom: 0; right: 0%;">
-          Amount
+          {{topic.total_price}}
         </v-card-title>
       </v-img>
 
@@ -42,31 +42,22 @@
         rounded
         rounded-bar
         >
-        <strong>{{ Math.ceil(20) }}%</strong>
+        <strong>{{ Math.ceil(topic.yes_ratio > topic.no_ratio ? topic.yes_ratio : topic.no_ratio) }}%</strong>
       </v-progress-linear>
 
       <div style="display: flex; justify-content: space-between;">
         <v-card-subtitle class="pt-4">
-          Category
+          {{topic.category.category_name}}
         </v-card-subtitle>
         <v-card-subtitle class="pt-4">
-          Created Time
+          {{topic.created_at}}
         </v-card-subtitle>
       </div>
 
 
       <v-card-text>
-        <div>This is a Intro</div>
+        <div>{{ topic.intro }}</div>
       </v-card-text>
-
-      <!-- <v-card-actions>
-        <v-btn color="orange">
-          Share
-        </v-btn>
-        <v-btn color="orange">
-          Explore
-        </v-btn>
-      </v-card-actions> -->
     </v-card>
   </div>
 </template>
@@ -75,6 +66,12 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
+  props: {
+    topic: {
+      type: Object,
+      required: true
+    }
+  },
   setup () {
     const positiveValue = 60
     const negativeColor = 'red'

@@ -1,16 +1,18 @@
 <template>
   <div class="business">
-    <v-infinite-scroll :height="300" :items="list" :onLoad="loadingTopics">
-      <template v-for="(item, index) in list" :key="item">
-        <div :class="['pa-2', index % 2 === 0 ? 'bg-grey-lighten-2' : '']">
-          Item #{{ item }}
-        </div>
+    <van-list
+      v-model:loading="loading"
+      :finished="loadingFinished"
+      finished-text="没有更多了"
+      @load="loadingTopics"
+    >
+      <template v-for="item in list" :key="item">
+        <topic-item
+          class="topic-item"
+          :topic="item"
+        />
       </template>
-      <span>加载更多</span>
-      <template v-slot:loading>
-        <v-progress-linear color="blue" height="2"></v-progress-linear>
-      </template>
-    </v-infinite-scroll>
+    </van-list>
   </div>
 </template>
 
@@ -18,44 +20,41 @@
 import { defineComponent } from 'vue'
 import { useStore } from '@/store'
 import { computed } from 'vue'
+import TopicItem from '@/components/topic-list/src/cpns/topic-item.vue'
+import { getTopicsByCid } from '@/service/topic/topic'
+import { ref } from 'vue'
 
 export default defineComponent({
   components: {
+    TopicItem
   },
   setup () {
     const store = useStore()
     const list = computed(() => store.state.main.businessList)
-    store.dispatch('main/handleTopicList', {
-      cid: '1',
-      category: 'Business'
-    })
-    const prePageToken = computed(() => store.state.main.businessPrePageToken)
-      if (prePageToken.value != '') {
-        store.dispatch('main/handleTopicList', {
-        cid: '1',
-        category: 'Business'
-      })
-    }
+    const loading = ref(false)
+    const loadingFinished = ref(false)
 
-    const loadingTopics = ({done}) => {
-      setTimeout(() => {
-        if (prePageToken.value != '') {
-          store.dispatch('main/handleTopicList', {
-            cid: '1',
-            category: 'Business'
-          })
-        }
-        if (prePageToken.value == '') {
-          done('empty')
-        }
-        done('ok')
-      }, 1000)
+    const prePageToken = computed(() => store.state.main.businessPrePageToken)
+
+    const loadingTopics = async () => {
+      // loading data
+      const res = await getTopicsByCid('1', prePageToken.value, store.state.user.userInfo.uid ?? '')
+      store.commit('main/appendBusinessList', res.data.list)
+      store.commit('main/changeBusinessToken', res.data.pre_page_token)
+      // 加载状态结束
+      loading.value = false
+      // 数据全部加载完成
+      if (prePageToken.value === '') {
+        loadingFinished.value = true
+      }
     }
 
 
     return {
       list,
-      loadingTopics
+      loadingTopics,
+      loading,
+      loadingFinished
     }
   }
 })

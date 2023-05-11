@@ -13,6 +13,10 @@ import { md1 } from 'vuetify/blueprints'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
 import UIKit from "@foxone/uikit"
 import Passport from "@foxone/mixin-passport"
+import { Button, List, Cell, CellGroup } from 'vant'
+import 'vant/lib/index.css';
+
+
 
 // Types
 import type { App } from 'vue'
@@ -59,6 +63,10 @@ export function registerPlugins (app: App) {
     .use(store)
     .use(UIKit)
     .use(Passport, {})
+    app.use(Button);
+    app.use(List);
+    app.use(Cell);
+    app.use(CellGroup);
 }
 
 export function listenWindow(app: App) {

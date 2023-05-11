@@ -27,5 +27,10 @@ export interface TopicList {
   updated_at?:      string;
   deleted_at?:      string;
   is_collect?:      number;
-  category?:        null;
+  category?:        category;
+}
+
+export interface category {
+  id?: number;
+  category_name: string;
 }

@@ -14,6 +14,7 @@ module.exports = {
     'vue/valid-v-model': 'off',
     'vue/no-use-v-if-with-v-for': 'off',
     'vue/no-duplicate-attributes': 'off',
-    'vue/no-mutating-props': 'off'
+    'vue/no-mutating-props': 'off',
+    '@typescript-eslint/no-unused-vars': 'off'
   },
 }

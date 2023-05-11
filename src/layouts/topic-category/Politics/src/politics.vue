@@ -1,21 +1,61 @@
 <template>
-  <div class="politics">
-    <topic-list />
+  <div class="crypto">
+    <van-list
+      v-model:loading="loading"
+      :finished="loadingFinished"
+      finished-text="没有更多了"
+      @load="loadingTopics"
+    >
+      <template v-for="item in list" :key="item">
+        <topic-item
+          class="topic-item"
+          :topic="item"
+        />
+      </template>
+    </van-list>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import TopicList from '@/components/topic-list'
+import { useStore } from '@/store'
+import { computed } from 'vue'
+import TopicItem from '@/components/topic-list/src/cpns/topic-item.vue'
+import { getTopicsByCid } from '@/service/topic/topic'
+import { ref } from 'vue'
 
 export default defineComponent({
   components: {
-    TopicList
+    TopicItem
   },
   setup () {
+    const store = useStore()
+    const list = computed(() => store.state.main.politicsList)
+    const loading = ref(false)
+    const loadingFinished = ref(false)
+
+    const prePageToken = computed(() => store.state.main.politicsPrePageToken)
+
+    const loadingTopics = async () => {
+      // loading data
+      const res = await getTopicsByCid('4', prePageToken.value)
+      store.commit('main/appendPoliticsList', res.data.list)
+      store.commit('main/changePoliticsToken', res.data.pre_page_token)
+      // 加载状态结束
+      loading.value = false
+      // 数据全部加载完成
+      if (prePageToken.value === '') {
+        loadingFinished.value = true
+      }
+    }
 
 
-    return {}
+    return {
+      list,
+      loadingTopics,
+      loading,
+      loadingFinished
+    }
   }
 })
 </script>

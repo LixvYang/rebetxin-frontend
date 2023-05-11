@@ -7,9 +7,16 @@ export enum TopicAPI {
   SearchTopic = '/user/signin'
 }
 
-export async function getTopicsByCid(cid: string, token: string) {
+export async function getTopicsByCid(cid: string, token: string, uid?: string) {
+  let url = TopicAPI.GetTopicsByCid + `${cid}?page_token=${token}`
+  if (uid !== '') {
+    url = TopicAPI.GetTopicsByCid + `${cid}?page_token=${token}&uid=${uid}`
+  }
+  console.log('====================================');
+  console.log(url);
+  console.log('====================================');
   return Request.get<BetxinRes<Data>>({
-    url: TopicAPI.GetTopicsByCid + `${cid}?page_token=${token}`,
+    url: url,
     showLoading: false,
   })
 }

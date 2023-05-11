@@ -68,12 +68,12 @@ const mainModule: Module<IMainState, IRootState> = {
       state.businessList = list
     },
     appendBusinessList(state, list: TopicList[]) {
-      state.businessList = list
-    },
-    changeBusinessToken(state, list: TopicList[]) {
       for (let i = 0; i < list.length; i++) {
         state.businessList.push(list![i])
       }
+    },
+    changeBusinessToken(state, token: string) {
+      state.businessPrePageToken = token
     },
     changeCryptoList(state, list: TopicList[]) {
       state.cryptoList = list
@@ -119,13 +119,13 @@ const mainModule: Module<IMainState, IRootState> = {
         state.sportsList.push(list![i])
       }
     },
-    changeTreedingList(state, list: TopicList[]) {
+    changeTrendingList(state, list: TopicList[]) {
       state.treedingList = list
     },
-    changeTreedingToken(state, token: string) {
+    changeTrendingToken(state, token: string) {
       state.treedingPrePageToken = token
     },
-    appendTreedingList(state, list: TopicList[]) {
+    appendTrendingList(state, list: TopicList[]) {
       for (let i = 0; i < list.length; i++) {
         state.treedingList.push(list![i])
       }

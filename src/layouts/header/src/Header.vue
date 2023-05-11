@@ -96,9 +96,9 @@ export default defineComponent({
 
     const handleConnectClick = async () => {
       const { token, channel, mixin_token } = await passport.auth({
-        origin: "FoxONE UIKit",
+        origin: "Betxin",
         authMethods: ["metamask", "walletconnect", "mixin", "fennec", "onekey"],
-        clientId: "fbd26bc6-3d04-4964-a7fe-a540432b16e2",
+        clientId: "30aad5a5-e5f3-4824-9409-c2ff4152724e",
         scope: "PROFILE:READ ASSETS:READ",
         pkce: true,
         signMessage: true,
