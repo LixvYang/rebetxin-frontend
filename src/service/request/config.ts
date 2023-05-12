@@ -1,3 +1,4 @@
+export const SITE_URL = 'http://127.0.0.1:4000'
 let BASE_URL = ''
 const TIME_OUT = 10000
 

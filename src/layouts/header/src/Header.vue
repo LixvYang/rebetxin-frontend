@@ -7,11 +7,10 @@
           </v-app-bar-nav-icon>
         </template>
         <v-toolbar-title class="text-gray-800">Betxin</v-toolbar-title>
-        <v-btn
+        <!-- <v-btn
           class="notify"
           icon="mdi mdi-bell"
-          color="teal"
-        ></v-btn>
+        ></v-btn> -->
       </v-app-bar>
 
       <v-navigation-drawer
