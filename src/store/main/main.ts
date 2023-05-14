@@ -3,6 +3,9 @@ import { IRootState } from '../types'
 import { IMainState } from './types'
 import { Topic } from '@/service/topic/types'
 import { getTopicByTid, getTopicsByCid } from '@/service/topic/topic'
+import { TopicCollect } from '@/service/collect/types'
+import { getCollectList } from '@/service/collect/collect'
+import { getPurchaseList } from '@/service/purchase/purchase'
 
 const mainModule: Module<IMainState, IRootState> = {
   namespaced: true,
@@ -21,7 +24,9 @@ const mainModule: Module<IMainState, IRootState> = {
       sportsList: [],
       sportsPrePageToken: '',
       treedingList: [],
-      treedingPrePageToken: ''
+      treedingPrePageToken: '',
+      collectList: [],
+      purchaseList: []
     }
   },
   actions: {
@@ -61,10 +66,16 @@ const mainModule: Module<IMainState, IRootState> = {
       }
     },
     async handleCollectAction({commit}, payload: any) {
-      const { category, tid, is_collect } = payload
-      console.log('====================================');
-      console.log(payload);
-      console.log('====================================');
+      const { category, tid, is_collect, collectVue, purchaseVue } = payload
+      if (collectVue == true) {
+        commit('changeCollectListCollect', {tid: tid, is_collect: is_collect})
+        return
+      }
+
+      if (collectVue == true) {
+        commit('changePurchaseListCollect', {tid: tid, is_collect: is_collect})
+        return
+      }
       const ChangeName = `change${category}ListCollect`
       commit(ChangeName, {tid: tid, is_collect: is_collect})
     },
@@ -74,6 +85,14 @@ const mainModule: Module<IMainState, IRootState> = {
       if (res.code === 0) {
         commit('changeTopicContent', res.data)
       }
+    },
+    async handleTopicCollectList({commit}, payload: any) {
+      const res = await getCollectList()
+      commit('changeCollectList', res.data)
+    },
+    async handleTopicPurchaseList({commit}, payload: any) {
+      const res = await getPurchaseList()
+      commit('changePurchaseList', res.data)
     }
   },
   mutations: {
@@ -194,6 +213,28 @@ const mainModule: Module<IMainState, IRootState> = {
       for (let i = 0; i < state.treedingList.length; i++) {
         if (state.treedingList[i].tid == tid) {
           state.treedingList[i].is_collect = is_collect
+        }
+      }
+    },
+    changeCollectList(state, list: TopicCollect[]) {
+      state.collectList = list
+    },
+    changeCollectListCollect(state, payload: any) {
+      const { tid, is_collect } = payload
+      for (let i = 0; i < state.collectList.length; i++) {
+        if (state.collectList[i].tid == tid) {
+          state.collectList[i].topic.is_collect = is_collect
+        }
+      }
+    },
+    changePurchaseList(state, list: Topic[]) {
+      state.purchaseList = list
+    },
+    changePurchaseListCollect(state, payload: any) {
+      const { tid, is_collect } = payload
+      for (let i = 0; i < state.purchaseList.length; i++) {
+        if (state.purchaseList[i].tid == tid) {
+          state.purchaseList[i].is_collect = is_collect
         }
       }
     },

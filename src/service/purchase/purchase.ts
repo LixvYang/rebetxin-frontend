@@ -1,9 +1,11 @@
 import Request from '..'
+import { Topic } from '../topic/types'
 import { BetxinRes } from '../types'
 
 export enum PurchaseAPI {
   PostPurchase = '/purchase',
-  GetPurchase = '/purchase'
+  GetPurchase = '/purchase',
+  ListPurchase = '/purchase'
 }
 
 export async function createPurchase(tid: string, uid: string, trace_id: string) {
@@ -20,12 +22,12 @@ export async function createPurchase(tid: string, uid: string, trace_id: string)
 }
 
 export async function getPurchase(tid: string, uid: string) {
-  const data =  {
-    tid: tid,
-    uid: uid,
-  }
-
   return Request.get<BetxinRes>({
     url: PurchaseAPI.GetPurchase + `/uid/${uid}/tid/${tid}`,
+  })
+}
+export async function getPurchaseList() {
+  return Request.get<BetxinRes<Topic[]>>({
+    url: PurchaseAPI.ListPurchase,
   })
 }

@@ -21,39 +21,10 @@
           <v-list-item v-for="item in menuItems" :key="item.title" :to="item.to" @click="item.handle" :prepend-icon="item.icon">
             <v-list-item-title>{{ item.title }}</v-list-item-title>
           </v-list-item>
-          <v-divider></v-divider>
-          <v-list-item  >
-            <v-icon>mdi-login</v-icon>
-            <v-list-item-title>Login</v-list-item-title>
-          </v-list-item>
         </v-list>
       </v-navigation-drawer>
     </v-layout>
 
-
-    <!-- <div v-if="!isMobile">
-        <v-btn-toggle
-          rounded="0"
-          color="deep-purple-accent-3"
-          group
-        >
-          <v-btn value="left">
-            Left
-          </v-btn>
-
-          <v-btn value="center">
-            Center
-          </v-btn>
-
-          <v-btn value="right">
-            Right
-          </v-btn>
-
-          <v-btn value="justify">
-            Justify
-          </v-btn>
-        </v-btn-toggle>
-    </div> -->
     <v-toolbar v-if="!isMobile" color="deep-purple-accent-3" dark>
       <v-app-bar-nav-icon></v-app-bar-nav-icon>
       <v-toolbar-title>Betxin</v-toolbar-title>
@@ -154,7 +125,7 @@ export default defineComponent({
     }
 
     const menuItems = [
-      { title: 'Login', handle: handleConnectClick, icon: 'mdi-domain' },
+      { title: 'Login', handle: handleConnectClick, icon: 'mdi-login' },
       { title: 'Profile', icon: 'mdi-domain', to: '/main/profile'   },
       { title: 'Settings', handle: profileClick },
       { title: 'Language', handle: profileClick },

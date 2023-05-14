@@ -1,9 +1,11 @@
 import Request from '..'
 import { BetxinRes } from '../types'
+import { TopicCollect } from './types'
 
 enum CollectAPI {
   CreateCollect = '/collect',
-  DeleteCollect = '/collect'
+  DeleteCollect = '/collect',
+  ListCollect = '/collect'
 }
 
 export async function createCollect(tid: string) {
@@ -18,9 +20,6 @@ export async function createCollect(tid: string) {
 }
 
 export async function deleteCollect(tid: string) {
-  console.log('====================================');
-  console.log(tid);
-  console.log('====================================');
   const data = {
     tid: tid,
   }
@@ -30,3 +29,8 @@ export async function deleteCollect(tid: string) {
   })
 }
 
+export async function getCollectList() {
+  return Request.get<BetxinRes<TopicCollect[]>>({
+    url: CollectAPI.ListCollect,
+  })
+}

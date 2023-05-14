@@ -78,6 +78,14 @@ export default defineComponent({
     topic: {
       type: Object,
       required: true
+    },
+    collect: {
+      type: Boolean,
+      default: false
+    },
+    purchase: {
+      type: Boolean,
+      default: false
     }
   },
   setup (props, {emit}) {
@@ -96,16 +104,22 @@ export default defineComponent({
       if (isCollect.value == '') {
         const res = await createCollect(props.topic.tid)
         if (res.code === 0) {
-          showToast('Collect OK')
-          store.dispatch('main/handleCollectAction', {tid: props.topic.tid, is_collect: 1, category: props.topic.category.category_name})
+          showToast('Collect Success')
+          store.dispatch('main/handleCollectAction', {tid: props.topic.tid, is_collect: 1, category: props.topic.category.category_name, collect: props.collect, purchase: props.purchase})
         }
       } else {
         const res = await deleteCollect(props.topic.tid)
         if (res.code === 0) {
-          showToast('Delete OK')
-          store.dispatch('main/handleCollectAction', {tid: props.topic.tid, is_collect: 0, category: props.topic.category.category_name})
+          showToast('Delete Success')
+          store.dispatch('main/handleCollectAction', {tid: props.topic.tid, is_collect: 0, category: props.topic.category.category_name, collect: props.collect, purchase: props.purchase})
         }
         store.dispatch('main/handleTopicContent', {tid: props.topic.tid, uid: store.state.user.userInfo.uid})
+      }
+      if (props.collect == true) {
+        store.dispatch('main/handleTopicCollectList')
+      }
+      if (props.purchase == true) {
+        store.dispatch('main/handleTopicPurchaseList')
       }
     }
 

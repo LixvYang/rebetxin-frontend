@@ -3,7 +3,7 @@
     <van-list
       v-model:loading="loading"
       :finished="loadingFinished"
-      finished-text="没有更多了"
+      finished-text="END"
       @load="loadingTopics"
     >
       <template v-for="item in list" :key="item">

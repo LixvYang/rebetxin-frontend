@@ -1,3 +1,4 @@
+import { TopicCollect } from "@/service/collect/types"
 import { Topic } from "@/service/topic/types"
 
 export interface IMainState {
@@ -15,4 +16,6 @@ export interface IMainState {
   sportsPrePageToken: string
   treedingList: Topic[]
   treedingPrePageToken: string
+  collectList: TopicCollect[]
+  purchaseList: Topic[]
 }
