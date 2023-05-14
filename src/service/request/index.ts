@@ -31,9 +31,8 @@ class Request {
     // 2.添加所有的实例都有的拦截器
     this.instance.interceptors.request.use(
       (config) => {
-        if (this.showLoading) {
-          console.log('111')
-        }
+        // if (this.showLoading) {
+        // }
         return config
       },
       (err) => {

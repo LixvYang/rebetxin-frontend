@@ -38,7 +38,7 @@ export default defineComponent({
 
     const loadingTopics = async () => {
       // loading data
-      const res = await getTopicsByCid('2', prePageToken.value)
+      const res = await getTopicsByCid('2', prePageToken.value, store.state.user.userInfo.uid ?? '')
       store.commit('main/appendCryptoList', res.data.list)
       store.commit('main/changeCryptoToken', res.data.pre_page_token)
       // 加载状态结束

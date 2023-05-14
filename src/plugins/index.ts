@@ -13,10 +13,22 @@ import { md1 } from 'vuetify/blueprints'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
 import UIKit from "@foxone/uikit"
 import Passport from "@foxone/mixin-passport"
-import { Button, List, Cell, CellGroup } from 'vant'
+import { Button, List, Cell, CellGroup, Dialog, Image, Radio, RadioGroup, Grid, GridItem, ConfigProvider, Divider } from 'vant'
 import 'vant/lib/index.css';
 
-
+const components = [
+  Button,
+  List,
+  Cell,
+  CellGroup,
+  Dialog,
+  Radio,
+  RadioGroup,
+  Grid,
+  GridItem,
+  ConfigProvider,
+  Divider
+]
 
 // Types
 import type { App } from 'vue'
@@ -56,6 +68,7 @@ const vuetify = createVuetify(
 )
 
 export function registerPlugins (app: App) {
+  registerVantComponent(app)
   loadFonts()
   app
     .use(vuetify)
@@ -63,10 +76,12 @@ export function registerPlugins (app: App) {
     .use(store)
     .use(UIKit)
     .use(Passport, {})
-    app.use(Button);
-    app.use(List);
-    app.use(Cell);
-    app.use(CellGroup);
+}
+
+export function registerVantComponent(app: App) {
+  for (let i = 0; i < components.length; i++) {
+    app.use(components[i])
+  }
 }
 
 export function listenWindow(app: App) {

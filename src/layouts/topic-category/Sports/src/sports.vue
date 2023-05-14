@@ -38,7 +38,7 @@ export default defineComponent({
 
     const loadingTopics = async () => {
       // loading data
-      const res = await getTopicsByCid('3', prePageToken.value)
+      const res = await getTopicsByCid('3', prePageToken.value, store.state.user.userInfo.uid ?? '')
       store.commit('main/appendSportsList', res.data.list)
       store.commit('main/changeSportsToken', res.data.pre_page_token)
       // 加载状态结束

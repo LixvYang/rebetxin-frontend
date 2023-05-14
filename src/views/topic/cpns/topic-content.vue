@@ -15,46 +15,41 @@
           theme="dark"
         >
 
-        <v-btn icon rounded>
-          <v-icon>mdi-magnify</v-icon>
-        </v-btn>
-        <v-spacer></v-spacer>
-          <template v-slot:append>
-            <v-btn rounded icon="mdi-dots-vertical"></v-btn>
+          <v-btn rounded icon="mdi mdi-keyboard-return" @click="HandleReturnClick"></v-btn>
+
+          <v-spacer></v-spacer>
+          <v-btn rounded :color="isCollect"  icon="mdi mdi-star" @click="handleCollctClick(topic.is_collect!, topic.tid!)"></v-btn>
+            <template v-slot:append>
+            <v-btn rounded icon="mdi mdi-share-variant-outline" @click="handleShareClick(topic.tid!, topic.intro!, topic.img_url!, topic.title!)"></v-btn>
           </template>
-
-          <v-btn icon rounded>
-            <v-icon>mdi-magnify</v-icon>
-          </v-btn>
-
         </v-toolbar>
         <v-card-title class="text-left align-end" style="position: absolute; bottom: 0;">
-          Your Title
+          {{topic.title}}
         </v-card-title>
 
         <v-card-title class="text-left align-end" style="position: absolute; bottom: 0; right: 0%;">
-          Amount
+          {{ formattedTotalPrice(topic.total_price) }}
         </v-card-title>
       </v-img>
 
       <v-progress-linear
-        model-value="40"
+        :model-value="topic.yes_ratio"
         color="#5ddb92"
         bg-opacity="0.65"
         height="20"
-        :bg-color="negativeColor"
+        bg-color="red"
         rounded
         rounded-bar
         >
-        <strong>{{ Math.ceil(20) }}%</strong>
+        <strong>{{ Math.ceil(parseInt(topic.yes_ratio!) > parseInt(topic.no_ratio!) ? parseInt(topic.yes_ratio!) : parseInt(topic.no_ratio!)) }}%</strong>
       </v-progress-linear>
 
       <div style="display: flex; justify-content: space-between;">
         <v-card-subtitle class="pt-4">
-          Yes Price
+          Yes Price {{ formattedTotalPrice(topic.yes_price!) }}
         </v-card-subtitle>
         <v-card-subtitle class="pt-4">
-          No Price
+          No Price {{ formattedTotalPrice(topic.no_price!) }}
         </v-card-subtitle>
       </div>
 
@@ -62,40 +57,78 @@
 
       <div style="display: flex; justify-content: space-between;">
         <v-card-subtitle class="pt-4">
-          Intro
+          {{ topic.intro! }}
         </v-card-subtitle>
         <v-card-subtitle class="pt-4">
-          Created Time
+          Created {{ formatedCreatedTime(topic.created_at!) }}
         </v-card-subtitle>
       </div>
-
-
       <v-card-text>
         <div>This is a Content</div>
       </v-card-text>
 
       <div style="display: flex; justify-content:space-around;">
         <v-card-actions>
-          <v-btn color="light-blue">
+          <v-btn color="light-blue" variant="outlined" @click="HandleBetBtnClick">
             Bet
           </v-btn>
         </v-card-actions>
         <v-card-actions>
-          <v-btn color="light-green">
+          <v-btn color="light-green" variant="outlined" :disabled="JSON.stringify(purchase) === '{}' || (purchase.yes_price === '0' && purchase.no_price === '0')">
             Refund
           </v-btn>
         </v-card-actions>
       </div>
 
-      <div style="display: flex; justify-content:space-between;">
+      <div style="display: flex; justify-content:space-around;">
+        <v-card-actions>
+          My Buy Yes {{ purchase.yes_price ?? '0' }}
+        </v-card-actions>
+        <v-card-actions>
+          My Buy No {{ purchase.no_price ?? '0' }}
+        </v-card-actions>
+      </div>
+
+      <div>
         <v-card-subtitle class="pt-4">
-          Topic End Time
+          End Time {{ formatedCreatedTime(topic.end_time!) }}
         </v-card-subtitle>
         <v-card-subtitle class="pt-4">
-          Refund End Time
+          Refund End Time {{ formatedCreatedTime(topic.refund_end_time!) }}
         </v-card-subtitle>
       </div>
     </v-card>
+
+    <van-dialog closeOnClickOverlay	 v-model:show="betDialog" title="Bet"  width="40rem" class="bet-dialog" :showConfirmButton="false">
+      <van-radio-group v-model="BetSelect" direction="horizontal" class="bet-radio-group" checked-color="#009688">
+        <van-radio name="1">Yes</van-radio>
+        <van-radio name="2">No</van-radio>
+      </van-radio-group>
+
+      <v-responsive
+        class="mx-auto"
+        max-width="344"
+      >
+        <v-text-field
+          :rules="[positiveNumber]"
+          v-model="BetAmount"
+          label="CNB Amount"
+          type="input"
+          clearable
+          hint="Enter input your amount"
+        ></v-text-field>
+      </v-responsive>
+
+      <van-grid :column-num="3" :gutter="10" direction="horizontal"  icon-size="20px">
+        <van-grid-item icon-color="teal" :icon="item.isSelect ? 'success': ''" :text="item.amount" v-for="item in BtnAmountGroup" :key="item.amount" @click="HandleAmountItemClick(item)" />
+      </van-grid>
+
+      <van-divider></van-divider>
+
+      <van-button :loading="payBtnLoading" @click="HandlePayClick" plain hairline type="primary" size="large" icon="https://mixin-images.zeromesh.net/0sQY63dDMkWTURkJVjowWY6Le4ICjAFuu3ANVyZA4uI3UdkbuOT5fjJUT82ArNYmZvVcxDXyNjxoOv0TAYbQTNKS=s128">
+        Pay
+      </van-button>
+    </van-dialog>
 
     <div>
       <div id="talkee-comments"></div>
@@ -105,13 +138,25 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { formatedCreatedTime, formattedTotalPrice, handleShareClick } from '../../../components/topic-list/src/config/config'
+import { useStore } from '@/store'
+import { computed } from 'vue'
+import { ref } from 'vue'
+import { BtnAmountGroup, positiveNumber } from '../config/config'
+import { showToast } from 'vant'
+import { usePassport } from "@foxone/mixin-passport/lib/helper";
+import { MixinConfig } from '@/service/request/config'
+import { v4 as uuidv4 } from 'uuid';
+import { createSnapshot } from '@/service/snapshot/snapshot'
+import { createCollect, deleteCollect } from '@/service/collect/collect'
 
 export default defineComponent({
   mounted() {
     window.Talkee.show({
       apiBase: 'https://talkee-api.pando.im/api',
       slug: window.location.pathname,
-      siteId: '2',
+      siteId: '36',
       locale: "en",
       showLink: true,
       container: '#talkee-comments',
@@ -120,14 +165,142 @@ export default defineComponent({
       },
     })
   },
-  setup () {
-    const positiveValue = 60
-    const negativeColor = 'red'
+  setup(props, { emit }) {
+    const passport = usePassport();
+    const router = useRouter()
+    const route = useRoute()
+    const store = useStore()
+    const topic = computed(() => store.state.main.TopicContent)
+    const purchase = computed(() => store.state.purchase.purchaseInfo)
+    const betDialog = ref(false)
+    const BetSelect = ref('1')
+    const BetAmount = ref(0)
+    const payBtnLoading = ref(false)
+    const isCollect = computed(() => topic.value.is_collect === 1 ? 'yellow' : '')
+
+    const params = route.path.split('/'); // 将URL按照'/'分割成数组
+    const tid = params[3];
+    store.dispatch('main/handleTopicContent', {tid: tid, uid: store.state.user.userInfo.uid})
+
+    if (store.state.user.userInfo.uid) {
+      store.dispatch('purchase/handleGetPurchase', {uid: store.state.user.userInfo.uid, tid: tid})
+    }
+
+    const HandleReturnClick = () => {
+      router.back()
+    }
+
+    const HandleBetBtnClick = () => {
+      if (!store.state.user.userInfo.uid) {
+        showToast('Please Login First!')
+        return
+      }
+      betDialog.value = true
+    }
+
+    const HandleAmountItemClick = (item: any) => {
+      if (item.amount === BetAmount.value) {
+        for (let i = 0; i < BtnAmountGroup.value.length; i++) {
+          if (item.amount == BtnAmountGroup.value[i].amount) {
+            BtnAmountGroup.value[i].isSelect = false
+          }
+        }
+        BetAmount.value = 0
+        return
+      }
+
+      BetAmount.value = item.amount
+
+      for (let i = 0; i < BtnAmountGroup.value.length; i++) {
+        if (item.amount == BtnAmountGroup.value[i].amount) {
+          BtnAmountGroup.value[i].isSelect = true
+        } else {
+          BtnAmountGroup.value[i].isSelect = false
+        }
+      }
+    }
+
+    const handleCollctClick = async (is_collect?: number, tid?: string) => {
+      if (is_collect == 0) {
+        const res = await createCollect(tid!)
+        if (res.code === 0) {
+          showToast('Collect OK')
+        }
+      } else {
+        const res = await deleteCollect(tid!)
+        if (res.code === 0) {
+          showToast('Delete OK')
+        }
+      }
+      store.dispatch('main/handleTopicContent', {tid: tid, uid: store.state.user.userInfo.uid})
+    }
+
+    const HandlePayClick = async () => {
+      if (positiveNumber(BetAmount.value) !== true) {
+        showToast('amount Error!')
+        return
+      }
+
+      if (BetSelect.value != '1' && BetSelect.value != '2') {
+        showToast('select Error!')
+        return
+      }
+
+      let uuid = uuidv4()
+
+      const data = {
+        tid: topic.value.tid,
+        select: Number(BetSelect.value)-1,
+      }
+
+      const res = await createSnapshot(topic.value.tid!, uuid, store.state.user.userInfo.uid!)
+      if (res.code !== 0) {
+        showToast('Create Snapshot Error!')
+        return
+      }
+
+      payBtnLoading.value = true
+
+      passport.payment({
+        recipient: MixinConfig.ClientId,
+        amount: `${BetAmount.value}`,
+        assetId: MixinConfig.DefaultAssetId,
+        traceId: uuid,
+        memo: btoa(JSON.stringify(data)),
+        multisig: false,
+        checker: ()  => {
+            return new Promise((resolve) => {
+              setTimeout(function () {
+                showToast('Success Bet!')
+                payBtnLoading.value = false
+                betDialog.value = false
+                uuid = uuidv4()
+                return resolve(true);
+              }, 5000);
+            });
+          },
+      })
+    }
 
 
     return {
-      positiveValue,
-      negativeColor
+      positiveNumber,
+      purchase,
+      payBtnLoading,
+      betDialog,
+      topic,
+      BetAmount,
+      BtnAmountGroup,
+      BetSelect,
+      isCollect,
+      HandleBetBtnClick,
+      HandleReturnClick,
+      formatedCreatedTime,
+      formattedTotalPrice,
+      handleShareClick,
+      HandleAmountItemClick,
+      handleCollctClick,
+      HandlePayClick
     }
   }
 })
@@ -139,5 +312,11 @@ export default defineComponent({
   margin: auto;
   max-width: 700px;
   border-radius: 10%;
+}
+.bet-dialog {
+}
+.bet-radio-group {
+  position: relative;
+  left: 35%;
 }
 </style>

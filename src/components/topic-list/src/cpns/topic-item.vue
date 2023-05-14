@@ -14,10 +14,10 @@
           color="rgba(0, 0, 0, 0)"
           theme="dark"
         >
-        <v-spacer></v-spacer>
-            <v-btn rounded :color="topic.is_collect === 1 ? 'teal' : ''"  icon="mdi mdi-bookmark-box-outline"></v-btn>
+          <v-spacer></v-spacer>
+          <v-btn rounded :color="isCollect"  icon="mdi mdi-star" @click="handleCollctClick"></v-btn>
           <template v-slot:append>
-            <v-btn rounded icon="mdi mdi-send" @click="handleShareClick"></v-btn>
+            <v-btn rounded icon="mdi mdi-share-variant-outline" @click="handleShareClick(topic.tid, topic.intro, topic.img_url, topic.title)"></v-btn>
           </template>
         </v-toolbar>
         <v-card-title class="text-left align-end" style="position: absolute; bottom: 0;">
@@ -25,12 +25,12 @@
         </v-card-title>
 
         <v-card-title class="text-left align-end" style="position: absolute; bottom: 0; right: 0%;">
-          {{formattedTotalPrice}}
+          {{formattedTotalPrice(topic.total_price)}}
         </v-card-title>
       </v-img>
 
       <v-progress-linear
-        model-value="40"
+        :model-value="topic.yes_ratio"
         color="#5ddb92"
         bg-opacity="0.65"
         height="20"
@@ -43,25 +43,35 @@
 
       <div style="display: flex; justify-content: space-between;">
         <v-card-subtitle class="pt-4">
-          {{topic.category.category_name}}
+          {{ topic.category.category_name }}
         </v-card-subtitle>
         <v-card-subtitle class="pt-4">
-          Create: {{formatedCreatedTime}}
+          Create: {{  formatedCreatedTime(topic.created_at) }}
         </v-card-subtitle>
       </div>
 
+      <div style="display: flex; justify-content: space-between;">
+        <v-card-text>
+          <div>{{ topic.intro }}</div>
+        </v-card-text>
 
-      <v-card-text>
-        <div>{{ topic.intro }}</div>
-      </v-card-text>
+        <v-card-actions>
+          <v-btn color="light-blue" @click="handleEnterClick">
+            Enter
+          </v-btn>
+        </v-card-actions>
+      </div>
     </v-card>
   </div>
 </template>
 
 <script lang="ts">
-import { SITE_URL } from '@/service/request/config'
-import { computed } from 'vue'
-import { defineComponent } from 'vue'
+import { defineComponent, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { formatedCreatedTime, formattedTotalPrice, handleShareClick } from '../config/config'
+import { useStore } from '@/store'
+import { deleteCollect, createCollect } from '@/service/collect/collect'
+import { showToast } from 'vant'
 
 export default defineComponent({
   props: {
@@ -73,41 +83,41 @@ export default defineComponent({
   setup (props, {emit}) {
     const positiveValue = 60
     const negativeColor = 'red'
-    const formattedTotalPrice = computed(() => {
-      if (props.topic.total_price >= 10000) {
-        return (Math.round(props.topic.total_price / 1000) / 10) + '万';
-      } else {
-        return props.topic.total_price;
-      }
-    })
+    const router = useRouter()
+    const store = useStore()
+    const isCollect = computed(() => props.topic.is_collect === 1 ? 'yellow' : '')
 
-    const formatedCreatedTime = computed(() => {
-      const dateTimeString = props.topic.created_at;
-      const datePart = dateTimeString.substring(0, 10);
-      const timePart = dateTimeString.substring(11, 19);
-      const dateTime = new Date(`${datePart}T${timePart}`);
-      const formattedDateTime = dateTime.toLocaleString('zh-CN', { hour12: false });
-      return formattedDateTime;
-    })
-
-    const handleShareClick = () => {
-      const data = {
-        action: `${SITE_URL}/main/topic/${props.topic.tid}`,
-        app_id: "c1412f68-6152-40ad-a193-f7fadf9328a1",
-        description: `${props.topic.intro}`,
-        icon_url: `${props.topic.img_url}`,
-        title: `${props.topic.title}`
-      };
-      window.open("mixin://send?category=app_card&data=" + encodeURIComponent(btoa(JSON.stringify(data))))
+    const handleEnterClick = () => {
+      store.commit('main/changeTopicContent', props.topic)
+      router.push(`/main/topic/${props.topic.tid}`)
     }
 
+    const handleCollctClick = async () => {
+      if (isCollect.value == '') {
+        const res = await createCollect(props.topic.tid)
+        if (res.code === 0) {
+          showToast('Collect OK')
+          store.dispatch('main/handleCollectAction', {tid: props.topic.tid, is_collect: 1, category: props.topic.category.category_name})
+        }
+      } else {
+        const res = await deleteCollect(props.topic.tid)
+        if (res.code === 0) {
+          showToast('Delete OK')
+          store.dispatch('main/handleCollectAction', {tid: props.topic.tid, is_collect: 0, category: props.topic.category.category_name})
+        }
+        store.dispatch('main/handleTopicContent', {tid: props.topic.tid, uid: store.state.user.userInfo.uid})
+      }
+    }
 
     return {
       formattedTotalPrice,
       formatedCreatedTime,
+      handleCollctClick,
       handleShareClick,
+      handleEnterClick,
       positiveValue,
-      negativeColor
+      negativeColor,
+      isCollect
     }
   }
 })

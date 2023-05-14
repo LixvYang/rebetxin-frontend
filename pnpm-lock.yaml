@@ -66,6 +66,9 @@ devDependencies:
   '@types/node':
     specifier: ^18.16.2
     version: 18.16.2
+  '@types/uuid':
+    specifier: ^9.0.1
+    version: 9.0.1
   '@types/webfontloader':
     specifier: ^1.6.35
     version: 1.6.35
@@ -1241,6 +1244,10 @@ packages:
   /@types/strip-json-comments@0.0.30:
     resolution: {integrity: sha512-7NQmHra/JILCd1QqpSzl8+mJRc8ZHz3uDm8YV1Ks9IhK0epEiTw8aIErbvH9PI+6XbqhyIQy3462nEsn7UVzjQ==}
     dev: false
+
+  /@types/uuid@9.0.1:
+    resolution: {integrity: sha512-rFT3ak0/2trgvp4yYZo5iKFEPsET7vKydKF+VRCxlQ9bpheehyAJH89dAkaLEq/j/RZXJIqcgsmPJKUP1Z28HA==}
+    dev: true
 
   /@types/webfontloader@1.6.35:
     resolution: {integrity: sha512-IJlrsiDWq6KghQ7tPlL5tcwSUyOxLDceT+AFUY7Ylj0Fcv3/h3QkANqQxZ0B5mEpEKxhTw76vDmvrruSMV9n9Q==}

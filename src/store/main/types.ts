@@ -1,17 +1,18 @@
-import { TopicList } from "@/service/topic/types"
+import { Topic } from "@/service/topic/types"
 
 export interface IMainState {
   isMobile: Boolean
-  businessList: TopicList[]
+  TopicContent: Topic
+  businessList: Topic[]
   businessPrePageToken: string
-  cryptoList: TopicList[]
+  cryptoList: Topic[]
   cryptoPrePageToken: string
-  newList: TopicList[]
+  newList: Topic[]
   newPrePageToken: string
-  politicsList: TopicList[]
+  politicsList: Topic[]
   politicsPrePageToken: string
-  sportsList: TopicList[]
+  sportsList: Topic[]
   sportsPrePageToken: string
-  treedingList: TopicList[]
+  treedingList: Topic[]
   treedingPrePageToken: string
 }

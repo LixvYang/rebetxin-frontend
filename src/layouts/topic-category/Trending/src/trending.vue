@@ -38,7 +38,7 @@ export default defineComponent({
 
     const loadingTopics = async () => {
       // loading data
-      const res = await getTopicsByCid('6', prePageToken.value)
+      const res = await getTopicsByCid('6', prePageToken.value, store.state.user.userInfo.uid ?? '')
       store.commit('main/appendTrendingList', res.data.list)
       store.commit('main/changeTrendingToken', res.data.pre_page_token)
       // 加载状态结束

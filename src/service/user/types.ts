@@ -1,4 +1,3 @@
-
 export interface SignIn {
   login_method?: string
   mixin_token?: string

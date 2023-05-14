@@ -15,7 +15,7 @@
         <v-window-item
           :value="tab.value" v-for="tab in tabs" :key="tab.value"
         >
-        <component :is="tab.value"></component>
+         <component :is="tab.value"></component>
         </v-window-item>
       </v-window>
     </v-card>
@@ -26,7 +26,6 @@
 import { ref } from 'vue';
 import { defineComponent } from 'vue'
 import {tabs} from './tab-config'
-import TopicList from '@/components/topic-list/index'
 import Crypto from '@/layouts/topic-category/Crypto';
 import Business from '@/layouts/topic-category/Buisiness';
 import New from '@/layouts/topic-category/New';
@@ -36,7 +35,6 @@ import Trending from '@/layouts/topic-category/Trending';
 
 export default defineComponent({
   components: {
-    TopicList,
     Crypto,
     Business,
     New,

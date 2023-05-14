@@ -2,6 +2,7 @@ import { createStore, Store, useStore as useVuexStore } from 'vuex'
 import { IRootState, IStoreType } from './types'
 import main from './main/main'
 import user from './user/user'
+import purchase from './purchase/purchase'
 
 const store = createStore<IRootState>({
   state: () => {
@@ -15,6 +16,7 @@ const store = createStore<IRootState>({
   modules: {
     main,
     user,
+    purchase
   }
 })
 

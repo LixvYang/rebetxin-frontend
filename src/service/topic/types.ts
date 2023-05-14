@@ -1,11 +1,9 @@
-
-
 export interface Data {
-  list?:           TopicList[];
+  list?:           Topic[];
   pre_page_token?: string;
 }
 
-export interface TopicList {
+export interface Topic {
   id?:              number;
   tid?:             string;
   cid?:             number;
@@ -14,8 +12,8 @@ export interface TopicList {
   content?:         string;
   yes_ratio?:       string;
   no_ratio?:        string;
-  yes_ratio_price?: string;
-  no_ratio_price?:  string;
+  yes_price?: string;
+  no_price?:  string;
   total_price?:     string;
   collect_count?:   number;
   read_count?:      number;
