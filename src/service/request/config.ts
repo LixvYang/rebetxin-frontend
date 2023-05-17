@@ -1,6 +1,9 @@
 export const SITE_URL = 'http://127.0.0.1:4000'
 let BASE_URL = ''
 const TIME_OUT = 10000
+export const POLLING_INTERVAL = 1000; // 轮询间隔为 1 秒
+export const PAYMENT_TIMEOUT = 60 * 60 * 1000; // 超时时间为 1 小时（以毫秒为单位）
+
 
 export enum MixinConfig {
   Pin =  "250893",

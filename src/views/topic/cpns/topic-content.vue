@@ -74,7 +74,7 @@
           </v-btn>
         </v-card-actions>
         <v-card-actions>
-          <v-btn color="light-green" variant="outlined" :disabled="JSON.stringify(purchase) === '{}' || (purchase.yes_price === '0' && purchase.no_price === '0')">
+          <v-btn color="light-green" variant="outlined" :disabled="JSON.stringify(purchase) === '{}' || (purchase.yes_price === '0' && purchase.no_price === '0')" @click="refundDialog.value = true">
             Refund
           </v-btn>
         </v-card-actions>
@@ -99,10 +99,10 @@
       </div>
     </v-card>
 
-    <van-dialog closeOnClickOverlay	 v-model:show="betDialog" title="Bet"  width="40rem" class="bet-dialog" :showConfirmButton="false">
+    <van-dialog closeOnClickOverlay v-model:show="betDialog" title="Bet"  width="40rem" class="bet-dialog" :showConfirmButton="false">
       <van-radio-group v-model="BetSelect" direction="horizontal" class="bet-radio-group" checked-color="#009688">
-        <van-radio name="1">Yes</van-radio>
-        <van-radio name="2">No</van-radio>
+        <van-radio name="0">Yes</van-radio>
+        <van-radio name="1">No</van-radio>
       </van-radio-group>
 
       <v-responsive
@@ -130,6 +130,33 @@
       </van-button>
     </van-dialog>
 
+    <van-dialog closeOnClickOverlay v-model:show="refundDialog" title="Refund"  width="40rem" class="bet-dialog" :showConfirmButton="false">
+      <van-radio-group v-model="BetSelect" direction="horizontal" class="bet-radio-group" checked-color="#009688">
+        <van-radio name="0">Yes</van-radio>
+        <van-radio name="1">No</van-radio>
+      </van-radio-group>
+
+      <v-responsive
+        class="mx-auto"
+        max-width="344"
+      >
+        <v-text-field
+          :rules="[positiveRefundNumber]"
+          v-model="refundAmount"
+          label="CNB Amount"
+          type="input"
+          clearable
+          hint="Enter input your amount"
+        ></v-text-field>
+      </v-responsive>
+
+      <van-divider></van-divider>
+
+      <van-button :loading="refundBtnLoading" @click="handleRefundBtnClick" plain hairline type="primary" size="large" icon="https://mixin-images.zeromesh.net/0sQY63dDMkWTURkJVjowWY6Le4ICjAFuu3ANVyZA4uI3UdkbuOT5fjJUT82ArNYmZvVcxDXyNjxoOv0TAYbQTNKS=s128">
+        Refund
+      </van-button>
+    </van-dialog>
+
     <div>
       <div id="talkee-comments"></div>
     </div>
@@ -148,8 +175,9 @@ import { showToast } from 'vant'
 import { usePassport } from "@foxone/mixin-passport/lib/helper";
 import { MixinConfig } from '@/service/request/config'
 import { v4 as uuidv4 } from 'uuid';
-import { createSnapshot } from '@/service/snapshot/snapshot'
+import { createSnapshot, getSnapshot } from '@/service/snapshot/snapshot'
 import { createCollect, deleteCollect } from '@/service/collect/collect'
+import { POLLING_INTERVAL, PAYMENT_TIMEOUT } from '@/service/request/config'
 
 export default defineComponent({
   mounted() {
@@ -173,10 +201,26 @@ export default defineComponent({
     const topic = computed(() => store.state.main.TopicContent)
     const purchase = computed(() => store.state.purchase.purchaseInfo)
     const betDialog = ref(false)
-    const BetSelect = ref('1')
+    const BetSelect = ref('0')
     const BetAmount = ref(0)
     const payBtnLoading = ref(false)
     const isCollect = computed(() => topic.value.is_collect === 1 ? 'yellow' : '')
+    const refundAmount = ref(0)
+    let uuid = uuidv4()
+    const refundDialog = ref(false)
+    const refundBtnLoading = ref(false)
+    const maxRefundYesAmount = computed(() => parseFloat(purchase.value.yes_price!))
+    const maxRefundNoAmount = computed(() => parseFloat(purchase.value.no_price!))
+    const feeAmount = computed(() => {
+      if (BetSelect.value === "0") {
+        const price = parseFloat(purchase.value.yes_price!);
+        return ref(price * 0.9);
+      } else {
+        const price = parseFloat(purchase.value.no_price!);
+        return ref(price * 0.9);
+      }
+    });
+
 
     const params = route.path.split('/'); // 将URL按照'/'分割成数组
     const tid = params[3];
@@ -184,6 +228,37 @@ export default defineComponent({
 
     if (store.state.user.userInfo.uid) {
       store.dispatch('purchase/handleGetPurchase', {uid: store.state.user.userInfo.uid, tid: tid})
+    }
+
+    const positiveRefundNumber = () => {
+      if (!BetSelect.value) {
+        return 'Value is required';
+      }
+      const num = Number(BetSelect.value);
+      if (isNaN(num) || num <= 0) {
+        return 'Value must be a positive number';
+      }
+
+      if (BetSelect.value == '0') {
+        if (refundAmount.value > maxRefundYesAmount.value) {
+          return 'Value invaild';
+        }
+      } else {
+        if (refundAmount.value > maxRefundNoAmount.value) {
+          return 'Value invaild';
+        }
+      }
+      return true;
+    }
+
+    const handleRefundBtnClick = () => {
+      if (positiveRefundNumber() !== true) {
+        showToast('Amount invaild!')
+        return
+      }
+      refundBtnLoading.value = true
+
+
     }
 
     const HandleReturnClick = () => {
@@ -241,16 +316,15 @@ export default defineComponent({
         return
       }
 
-      if (BetSelect.value != '1' && BetSelect.value != '2') {
+      if (BetSelect.value != '0' && BetSelect.value != '1') {
         showToast('select Error!')
         return
       }
 
-      let uuid = uuidv4()
 
       const data = {
         tid: topic.value.tid,
-        select: Number(BetSelect.value)-1,
+        select: Number(BetSelect.value),
       }
 
       const res = await createSnapshot(topic.value.tid!, uuid, store.state.user.userInfo.uid!)
@@ -258,8 +332,10 @@ export default defineComponent({
         showToast('Create Snapshot Error!')
         return
       }
-
       payBtnLoading.value = true
+      const setLoadingTimeout = setTimeout(() => {
+        payBtnLoading.value = false;
+      }, 10000); // 等待 10 秒后设置 payBtnLoading.value 为 false
 
       passport.payment({
         recipient: MixinConfig.ClientId,
@@ -268,15 +344,29 @@ export default defineComponent({
         traceId: uuid,
         memo: btoa(JSON.stringify(data)),
         multisig: false,
-        checker: ()  => {
-            return new Promise((resolve) => {
-              setTimeout(function () {
-                showToast('Success Bet!')
-                payBtnLoading.value = false
-                betDialog.value = false
-                uuid = uuidv4()
-                return resolve(true);
-              }, 5000);
+        checker: () =>  {
+          return new Promise((resolve, reject) => {
+              let paymentTimer: any = null; // 用于存储付款超时计时器的变量
+              const stopPolling = () => {
+                clearInterval(pollingInterval);
+                clearTimeout(paymentTimer);
+                reject(new Error('Payment timeout'));
+              };
+
+              const pollingInterval = setInterval(async () => {
+                const res = await getSnapshot(uuid);
+                if (res.code === 0) {
+                  showToast('Success Bet!');
+                  payBtnLoading.value = false;
+                  betDialog.value = false;
+                  uuid = uuidv4();
+                  clearTimeout(setLoadingTimeout); // 清除设置 loading 的定时器
+                  clearInterval(pollingInterval);
+                  clearTimeout(paymentTimer);
+                  resolve(true);
+                }
+              }, POLLING_INTERVAL);
+              paymentTimer = setTimeout(stopPolling, PAYMENT_TIMEOUT);
             });
           },
       })
@@ -285,6 +375,8 @@ export default defineComponent({
 
     return {
       positiveNumber,
+      positiveRefundNumber,
+      refundAmount,
       purchase,
       payBtnLoading,
       betDialog,
@@ -293,6 +385,7 @@ export default defineComponent({
       BtnAmountGroup,
       BetSelect,
       isCollect,
+      refundDialog,
       HandleBetBtnClick,
       HandleReturnClick,
       formatedCreatedTime,
@@ -300,7 +393,8 @@ export default defineComponent({
       handleShareClick,
       HandleAmountItemClick,
       handleCollctClick,
-      HandlePayClick
+      HandlePayClick,
+      handleRefundBtnClick
     }
   }
 })

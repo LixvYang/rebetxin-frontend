@@ -101,6 +101,9 @@ export default defineComponent({
     }
 
     const handleCollctClick = async () => {
+      if (!store.state.user.userInfo.uid) {
+        showToast('Please Login.')
+      }
       if (isCollect.value == '') {
         const res = await createCollect(props.topic.tid)
         if (res.code === 0) {

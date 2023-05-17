@@ -14,6 +14,9 @@ const purchaseModule: Module<IPurchaseState, IRootState> = {
   actions: {
     async handleGetPurchase({commit}, payload: any) {
       const {uid, tid} = payload
+      if (!uid || !tid) {
+        return
+      }
       const res = await getPurchase(tid, uid)
       if (res.code !== 0) {
         commit('changePurchaseInfo', {})
