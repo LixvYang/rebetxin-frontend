@@ -18,7 +18,7 @@
         v-if="isMobile"
       >
         <v-list>
-          <v-list-item v-for="item in menuItems" :key="item.title" :to="item.to" @click="item.handle" :prepend-icon="item.icon">
+          <v-list-item v-for="item in menuItems" :key="item.title" @click="item.handle" :prepend-icon="item.icon">
             <v-list-item-title>{{ item.title }}</v-list-item-title>
           </v-list-item>
         </v-list>
@@ -45,6 +45,8 @@ import { usePassport } from "@foxone/mixin-passport/lib/helper";
 import { handleDiscontent, handleProfileClick } from '../config/menu-item'
 import { useStore } from '@/store'
 import SnackBar from '@/components/snackbar/src/snack-bar.vue';
+import { showToast } from 'vant';
+import cache from '@/plugins/cache';
 
 export default defineComponent({
   components: {
@@ -59,8 +61,17 @@ export default defineComponent({
     const isMvm = ref(false)
     const signMsg = ref('')
     const store = useStore()
+    const user = computed(() => store.state.user.userInfo)
 
     const handleConnectClick = async () => {
+      if (user.value.uid) {
+        showToast('您已经登陆')
+        return
+      }
+      `
+      eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJhaWQiOiI4ZjdkM2UwNS03MGQwLTRiNWMtYTg5Yi0wZmVkYmNiODZmYzUiLCJleHAiOjE3MTYxMDgyNTIsImlhdCI6MTY4NDU3MjI1MiwiaXNzIjoiMzBhYWQ1YTUtZTVmMy00ODI0LTk0MDktYzJmZjQxNTI3MjRlIiwic2NwIjoiUFJPRklMRTpSRUFEIEFTU0VUUzpSRUFEIn0.VvSZ_iMKMcA_gkSnRMfsdE1USZfJAXbx-5I4A0cpkKWAbX1Mb_sEoztWeyD8IdtMiQFJhAiFBHk6SmIOuoQmSgJGxOc6YfVKdkLX9iwhX1RP6XgDQ-bz5VyThfYw9qXJlMhUcldXzXZ2Ic0G47WcrB7-suExpSh8eJ7S1qz9H0M
+      `
+
       const { token, channel, mixin_token } = await passport.auth({
         origin: "Betxin",
         authMethods: ["metamask", "walletconnect", "mixin", "fennec", "onekey"],
@@ -94,17 +105,20 @@ export default defineComponent({
         }
       })
       if (!isMvm.value) {
+        cache.setCache('login_method', 'mixin_token')
         store.dispatch('user/handleUserLogin', {
           'login_method': 'mixin_token',
           'token': token
         })
       } else {
+        cache.setCache('login_method', 'mvm')
         store.dispatch('user/handleUserLogin', {
           'login_method': 'mvm',
           'sign': token,
           'sign_msg': signMsg
         })
       }
+      cache.setCache('token', token)
       setTimeout(() => {
         if (store.state.user.userInfo.uid) {
           isMenuOpen.value = false
@@ -119,14 +133,16 @@ export default defineComponent({
       handleProfileClick(snackbar)
     }
 
-    const discontentClick = () => {
-      snackBarText.value = 'Discontent Success'
+    const discontentClick = async () => {
+      if (!user.value.uid) {
+        showToast('请先登陆')
+        return
+      }
       handleDiscontent(snackbar)
     }
 
     const menuItems = [
-      { title: 'Login', handle: handleConnectClick, icon: 'mdi-login' },
-      { title: 'Profile', icon: 'mdi-domain', to: '/main/profile'   },
+      { title: 'Login', handle: handleConnectClick, icon: 'mdi-login'},
       { title: 'Settings', handle: profileClick },
       { title: 'Language', handle: profileClick },
       { title: 'Disconnect', handle: discontentClick },

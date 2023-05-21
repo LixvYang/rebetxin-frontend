@@ -1,16 +1,16 @@
 export const SITE_URL = 'http://127.0.0.1:4000'
 let BASE_URL = ''
 const TIME_OUT = 10000
-export const POLLING_INTERVAL = 1000; // 轮询间隔为 1 秒
+export const POLLING_INTERVAL = 3000; // 轮询间隔为 3 秒
 export const PAYMENT_TIMEOUT = 60 * 60 * 1000; // 超时时间为 1 小时（以毫秒为单位）
 
 
 export enum MixinConfig {
-  Pin =  "250893",
+  Pin =  "598823",
   ClientId= "30aad5a5-e5f3-4824-9409-c2ff4152724e",
-  SessionId= "bad27d45-dca3-40a5-b1cf-bc8252527ec9",
-  PinToken= "be7KHTguCA48ri8V58o7VRwUDOR_YptKWg6t-loOKWU",
-  PrivateKey= "6ITeXg_FAgBDDj7KmpvTG_9XnMYHz4vVQGyx06wCa_4sDHMIzVOGoowqHRUYA4WswaNP7HVre18rduJiZuYeiQ",
+  SessionId= "2a01423c-3f1a-4e8a-9bf9-075373ed52ed",
+  PinToken= "--466fC5f9_qH4R63XeavkJrs7pPmwJMH2qp4hBfFDg",
+  PrivateKey= "RRH17kF1Y4RBhmZarmkN7ApPV4CitirhglN5hoL8d3_2p474Upqz_1Zpu7pfb3MV2vcehoE6o5pPpb3zDtRZPQ",
   AppSecret= "3393cf8cd5350921ddfacbcf7600b2538f99cbfa9dd32eccfd759bc6076f7e97",
 
   DefaultAssetId = "965e5c6e-434c-3fa9-b780-c50f43cd955c"

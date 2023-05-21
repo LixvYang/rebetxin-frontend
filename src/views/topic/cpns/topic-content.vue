@@ -64,42 +64,42 @@
         </v-card-subtitle>
       </div>
       <v-card-text>
-        <div>This is a Content</div>
+        <div>{{ topic.content! }}</div>
       </v-card-text>
 
       <div style="display: flex; justify-content:space-around;">
         <v-card-actions>
           <v-btn color="light-blue" variant="outlined" @click="HandleBetBtnClick">
-            Bet
+            下注
           </v-btn>
         </v-card-actions>
         <v-card-actions>
-          <v-btn color="light-green" variant="outlined" :disabled="JSON.stringify(purchase) === '{}' || (purchase.yes_price === '0' && purchase.no_price === '0')" @click="refundDialog.value = true">
-            Refund
+          <v-btn color="light-green" variant="outlined" :disabled="JSON.stringify(purchase) === '{}' || (purchase.yes_price === '0' && purchase.no_price === '0')" @click="refundDialog = true">
+            退款
           </v-btn>
         </v-card-actions>
       </div>
 
       <div style="display: flex; justify-content:space-around;">
         <v-card-actions>
-          My Buy Yes {{ purchase.yes_price ?? '0' }}
+        购买数额  Yes {{ purchase.yes_price ?? '0' }}
         </v-card-actions>
         <v-card-actions>
-          My Buy No {{ purchase.no_price ?? '0' }}
+          No {{ purchase.no_price ?? '0' }}
         </v-card-actions>
       </div>
 
       <div>
         <v-card-subtitle class="pt-4">
-          End Time {{ formatedCreatedTime(topic.end_time!) }}
+          话题终止 {{ formatedCreatedTime(topic.end_time!) }}
         </v-card-subtitle>
         <v-card-subtitle class="pt-4">
-          Refund End Time {{ formatedCreatedTime(topic.refund_end_time!) }}
+          退款终止 {{ formatedCreatedTime(topic.refund_end_time!) }}
         </v-card-subtitle>
       </div>
     </v-card>
 
-    <van-dialog closeOnClickOverlay v-model:show="betDialog" title="Bet"  width="40rem" class="bet-dialog" :showConfirmButton="false">
+    <van-dialog closeOnClickOverlay v-model:show="betDialog" title="下注"  width="40rem" class="bet-dialog" :showConfirmButton="false">
       <van-radio-group v-model="BetSelect" direction="horizontal" class="bet-radio-group" checked-color="#009688">
         <van-radio name="0">Yes</van-radio>
         <van-radio name="1">No</van-radio>
@@ -126,11 +126,11 @@
       <van-divider></van-divider>
 
       <van-button :loading="payBtnLoading" @click="HandlePayClick" plain hairline type="primary" size="large" icon="https://mixin-images.zeromesh.net/0sQY63dDMkWTURkJVjowWY6Le4ICjAFuu3ANVyZA4uI3UdkbuOT5fjJUT82ArNYmZvVcxDXyNjxoOv0TAYbQTNKS=s128">
-        Pay
+        支付
       </van-button>
     </van-dialog>
 
-    <van-dialog closeOnClickOverlay v-model:show="refundDialog" title="Refund"  width="40rem" class="bet-dialog" :showConfirmButton="false">
+    <van-dialog closeOnClickOverlay v-model:show="refundDialog" title="退款"  width="40rem" class="bet-dialog" :showConfirmButton="false">
       <van-radio-group v-model="BetSelect" direction="horizontal" class="bet-radio-group" checked-color="#009688">
         <van-radio name="0">Yes</van-radio>
         <van-radio name="1">No</van-radio>
@@ -148,12 +148,18 @@
           clearable
           hint="Enter input your amount"
         ></v-text-field>
+
+        <div style="display: flex; justify-content: space-between;">
+          <v-btn variant="text">
+            退款最大金额 {{ maxRefundAmount.value }}
+          </v-btn>
+          <v-btn variant="text">
+            费用 {{feeAmount.value}}
+          </v-btn>
+        </div>
       </v-responsive>
-
-      <van-divider></van-divider>
-
-      <van-button :loading="refundBtnLoading" @click="handleRefundBtnClick" plain hairline type="primary" size="large" icon="https://mixin-images.zeromesh.net/0sQY63dDMkWTURkJVjowWY6Le4ICjAFuu3ANVyZA4uI3UdkbuOT5fjJUT82ArNYmZvVcxDXyNjxoOv0TAYbQTNKS=s128">
-        Refund
+      <van-button @click="handleRefundBtnClick" plain hairline type="primary" size="large" icon="https://mixin-images.zeromesh.net/0sQY63dDMkWTURkJVjowWY6Le4ICjAFuu3ANVyZA4uI3UdkbuOT5fjJUT82ArNYmZvVcxDXyNjxoOv0TAYbQTNKS=s128">
+        退款
       </van-button>
     </van-dialog>
 
@@ -177,7 +183,8 @@ import { MixinConfig } from '@/service/request/config'
 import { v4 as uuidv4 } from 'uuid';
 import { createSnapshot, getSnapshot } from '@/service/snapshot/snapshot'
 import { createCollect, deleteCollect } from '@/service/collect/collect'
-import { POLLING_INTERVAL, PAYMENT_TIMEOUT } from '@/service/request/config'
+import { POLLING_INTERVAL } from '@/service/request/config'
+import { createRefund } from '@/service/refund/refund'
 
 export default defineComponent({
   mounted() {
@@ -209,9 +216,17 @@ export default defineComponent({
     let uuid = uuidv4()
     const refundDialog = ref(false)
     const refundBtnLoading = ref(false)
-    const maxRefundYesAmount = computed(() => parseFloat(purchase.value.yes_price!))
-    const maxRefundNoAmount = computed(() => parseFloat(purchase.value.no_price!))
     const feeAmount = computed(() => {
+      if (BetSelect.value === "0") {
+        const price = parseFloat(purchase.value.yes_price!);
+        return ref(price * 0.1);
+      } else {
+        const price = parseFloat(purchase.value.no_price!);
+        return ref(price * 0.1);
+      }
+    })
+
+    const maxRefundAmount = computed(() => {
       if (BetSelect.value === "0") {
         const price = parseFloat(purchase.value.yes_price!);
         return ref(price * 0.9);
@@ -230,35 +245,33 @@ export default defineComponent({
       store.dispatch('purchase/handleGetPurchase', {uid: store.state.user.userInfo.uid, tid: tid})
     }
 
-    const positiveRefundNumber = () => {
+    const positiveRefundNumber = (value: any) => {
       if (!BetSelect.value) {
         return 'Value is required';
       }
-      const num = Number(BetSelect.value);
+      const num = Number(refundAmount.value);
       if (isNaN(num) || num <= 0) {
         return 'Value must be a positive number';
       }
 
-      if (BetSelect.value == '0') {
-        if (refundAmount.value > maxRefundYesAmount.value) {
-          return 'Value invaild';
-        }
-      } else {
-        if (refundAmount.value > maxRefundNoAmount.value) {
-          return 'Value invaild';
-        }
+      if (refundAmount.value > maxRefundAmount.value.value) {
+        return 'Value invaild';
       }
       return true;
     }
 
-    const handleRefundBtnClick = () => {
-      if (positiveRefundNumber() !== true) {
-        showToast('Amount invaild!')
+    const handleRefundBtnClick = async () => {
+      if (positiveRefundNumber(refundAmount) !== true) {
+        showToast('数额无效!')
         return
       }
-      refundBtnLoading.value = true
 
-
+      const res = await createRefund(topic.value.tid!, store.state.user.userInfo.uid!, Number(BetSelect.value))
+      if (res.code !== 0) {
+        showToast('退款失败')
+        return
+      }
+      showToast('退款成功')
     }
 
     const HandleReturnClick = () => {
@@ -267,7 +280,7 @@ export default defineComponent({
 
     const HandleBetBtnClick = () => {
       if (!store.state.user.userInfo.uid) {
-        showToast('Please Login First!')
+        showToast('请先登陆!')
         return
       }
       betDialog.value = true
@@ -299,12 +312,12 @@ export default defineComponent({
       if (is_collect == 0) {
         const res = await createCollect(tid!)
         if (res.code === 0) {
-          showToast('Collect OK')
+          showToast('收藏成功')
         }
       } else {
         const res = await deleteCollect(tid!)
         if (res.code === 0) {
-          showToast('Delete OK')
+          showToast('取消收藏')
         }
       }
       store.dispatch('main/handleTopicContent', {tid: tid, uid: store.state.user.userInfo.uid})
@@ -312,15 +325,14 @@ export default defineComponent({
 
     const HandlePayClick = async () => {
       if (positiveNumber(BetAmount.value) !== true) {
-        showToast('amount Error!')
+        showToast('数额无效!')
         return
       }
 
       if (BetSelect.value != '0' && BetSelect.value != '1') {
-        showToast('select Error!')
+        showToast('选择错误!')
         return
       }
-
 
       const data = {
         tid: topic.value.tid,
@@ -329,53 +341,54 @@ export default defineComponent({
 
       const res = await createSnapshot(topic.value.tid!, uuid, store.state.user.userInfo.uid!)
       if (res.code !== 0) {
-        showToast('Create Snapshot Error!')
+        showToast('创建账单错误!')
         return
       }
       payBtnLoading.value = true
-      const setLoadingTimeout = setTimeout(() => {
-        payBtnLoading.value = false;
-      }, 10000); // 等待 10 秒后设置 payBtnLoading.value 为 false
 
-      passport.payment({
-        recipient: MixinConfig.ClientId,
-        amount: `${BetAmount.value}`,
-        assetId: MixinConfig.DefaultAssetId,
-        traceId: uuid,
-        memo: btoa(JSON.stringify(data)),
-        multisig: false,
-        checker: () =>  {
-          return new Promise((resolve, reject) => {
-              let paymentTimer: any = null; // 用于存储付款超时计时器的变量
-              const stopPolling = () => {
-                clearInterval(pollingInterval);
-                clearTimeout(paymentTimer);
-                reject(new Error('Payment timeout'));
-              };
-
-              const pollingInterval = setInterval(async () => {
+      let pollingInterval: any = null
+      try {
+        await passport.payment({
+          recipient: MixinConfig.ClientId,
+          amount: `${BetAmount.value}`,
+          assetId: MixinConfig.DefaultAssetId,
+          traceId: uuid,
+          memo: btoa(JSON.stringify(data)),
+          multisig: false,
+          checker: () => {
+            return new Promise((resolve) => {
+              pollingInterval = setInterval(async ()=>{
                 const res = await getSnapshot(uuid);
-                if (res.code === 0) {
-                  showToast('Success Bet!');
-                  payBtnLoading.value = false;
-                  betDialog.value = false;
-                  uuid = uuidv4();
-                  clearTimeout(setLoadingTimeout); // 清除设置 loading 的定时器
-                  clearInterval(pollingInterval);
-                  clearTimeout(paymentTimer);
-                  resolve(true);
-                }
-              }, POLLING_INTERVAL);
-              paymentTimer = setTimeout(stopPolling, PAYMENT_TIMEOUT);
+                  if (res.code === 0) {
+                    showToast('Success Bet!');
+                    payBtnLoading.value = false;
+                    betDialog.value = false;
+                    uuid = uuidv4();
+                    clearInterval(pollingInterval); // 清除轮询定时器
+
+                    resolve(true);
+                  }
+              }, POLLING_INTERVAL)
             });
           },
-      })
+        })
+      } catch (error) {
+        console.log('====================================');
+        console.log(error);
+        console.log('====================================');
+        payBtnLoading.value = false;
+        clearTimeout(pollingInterval)
+        showToast('取消支付')
+      }
     }
 
 
     return {
       positiveNumber,
       positiveRefundNumber,
+      maxRefundAmount,
+      feeAmount,
+      refundBtnLoading,
       refundAmount,
       purchase,
       payBtnLoading,
@@ -406,8 +419,6 @@ export default defineComponent({
   margin: auto;
   max-width: 700px;
   border-radius: 10%;
-}
-.bet-dialog {
 }
 .bet-radio-group {
   position: relative;

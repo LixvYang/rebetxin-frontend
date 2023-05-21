@@ -30,7 +30,7 @@ const routes = [
           },
           {
             path: '/main/board',
-            component: () => import(/* webpackChunkName: "profile" */ '@/views/profile/Profile.vue')
+            component: () => import(/* webpackChunkName: "profile" */ '@/views/board/Board.vue')
           }
         ]
       },

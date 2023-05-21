@@ -5,6 +5,7 @@ import { UserInfo } from '@/service/user/types'
 import { signin, getUserInfo } from '@/service/user/user'
 import cache from '@/plugins/cache'
 import { ref } from 'vue'
+import { usePassport } from "@foxone/mixin-passport/lib/helper";
 
 const mainModule: Module<IUserState, IRootState> = {
   namespaced: true,
@@ -26,17 +27,23 @@ const mainModule: Module<IUserState, IRootState> = {
       const token = tokenInfo.value.data.token
       cache.setCache('_betxin_token', token)
       const userInfo = await getUserInfo()
-      console.log('userInfo', userInfo)
       commit('changeUserInfo', userInfo.data)
     },
-    async getUserInfo({commit}, payload: any) {
+    async getUserInfo({commit}, token: any) {
       const userInfo = await getUserInfo()
       commit('changeUserInfo', userInfo.data)
+      const passport = usePassport();
+      const toke = cache.getCache('token')
+      const login_method = cache.getCache('login_method')
+      passport.sync({
+        token: token,
+        channel: login_method
+      })
     },
     loadLocalLogin({ commit, dispatch }) {
-      const userInfo = cache.getCache('_betxin_token')
-      if (userInfo) {
-        dispatch('getUserInfo', userInfo)
+      const token = cache.getCache('_betxin_token')
+      if (token) {
+        dispatch('getUserInfo', token)
       }
     }
   },
