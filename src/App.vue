@@ -6,6 +6,8 @@
 
 <script>
 import { ref, reactive } from 'vue';
+import { usePassport } from "@foxone/mixin-passport/lib/helper";
+import cache from '@/plugins/cache';
 
 export default {
   setup() {
@@ -21,7 +23,17 @@ export default {
       buttonPrimaryBorderColor: '#07c160',
       gridItemTextFontSize: '18px',
       gridItemContentPadding: '0px'
-    });
+    })
+
+    const passport = usePassport();
+    const auth = cache.getCache('auth')
+    if (auth) {
+      const authObject = JSON.parse(auth)
+      passport.sync({
+        token: authObject.token,
+        channel: authObject.channel
+      })
+    }
 
     return {
       themeVars,

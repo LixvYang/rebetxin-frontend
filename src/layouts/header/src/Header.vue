@@ -68,9 +68,6 @@ export default defineComponent({
         showToast('您已经登陆')
         return
       }
-      `
-      eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJhaWQiOiI4ZjdkM2UwNS03MGQwLTRiNWMtYTg5Yi0wZmVkYmNiODZmYzUiLCJleHAiOjE3MTYxMDgyNTIsImlhdCI6MTY4NDU3MjI1MiwiaXNzIjoiMzBhYWQ1YTUtZTVmMy00ODI0LTk0MDktYzJmZjQxNTI3MjRlIiwic2NwIjoiUFJPRklMRTpSRUFEIEFTU0VUUzpSRUFEIn0.VvSZ_iMKMcA_gkSnRMfsdE1USZfJAXbx-5I4A0cpkKWAbX1Mb_sEoztWeyD8IdtMiQFJhAiFBHk6SmIOuoQmSgJGxOc6YfVKdkLX9iwhX1RP6XgDQ-bz5VyThfYw9qXJlMhUcldXzXZ2Ic0G47WcrB7-suExpSh8eJ7S1qz9H0M
-      `
 
       const { token, channel, mixin_token } = await passport.auth({
         origin: "Betxin",
@@ -105,20 +102,19 @@ export default defineComponent({
         }
       })
       if (!isMvm.value) {
-        cache.setCache('login_method', 'mixin_token')
         store.dispatch('user/handleUserLogin', {
           'login_method': 'mixin_token',
           'token': token
         })
       } else {
-        cache.setCache('login_method', 'mvm')
         store.dispatch('user/handleUserLogin', {
           'login_method': 'mvm',
           'sign': token,
           'sign_msg': signMsg
         })
       }
-      cache.setCache('token', token)
+      cache.deleteCache('auth')
+      cache.setCache('auth', JSON.stringify({'channel': channel, 'token': token}))
       setTimeout(() => {
         if (store.state.user.userInfo.uid) {
           isMenuOpen.value = false

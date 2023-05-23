@@ -32,13 +32,6 @@ const mainModule: Module<IUserState, IRootState> = {
     async getUserInfo({commit}, token: any) {
       const userInfo = await getUserInfo()
       commit('changeUserInfo', userInfo.data)
-      const passport = usePassport();
-      const toke = cache.getCache('token')
-      const login_method = cache.getCache('login_method')
-      passport.sync({
-        token: token,
-        channel: login_method
-      })
     },
     loadLocalLogin({ commit, dispatch }) {
       const token = cache.getCache('_betxin_token')
