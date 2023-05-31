@@ -130,11 +130,13 @@ export default defineComponent({
     }
 
     const discontentClick = async () => {
-      if (!user.value.uid) {
-        showToast('请先登陆')
-        return
-      }
-      handleDiscontent(snackbar)
+      // if (!user.value.uid) {
+      //   showToast('请先登陆')
+      //   return
+      // }
+      // handleDiscontent(snackbar)
+      snackBarText.value = '更多功能正在开发中'
+      handleProfileClick
     }
 
     const menuItems = [

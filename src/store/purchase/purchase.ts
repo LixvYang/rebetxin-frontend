@@ -19,10 +19,20 @@ const purchaseModule: Module<IPurchaseState, IRootState> = {
       }
       const res = await getPurchase(tid, uid)
       if (res.code !== 0) {
-        commit('changePurchaseInfo', {})
+        commit('changePurchaseInfo', {
+          id: 1,
+          uid: uid,
+          tid: tid,
+          yes_price: '0',
+          no_price: '0',
+          created_at: '',
+          updated_at: '',
+          deleted_at: null
+        })
+      } else {
+        commit('changePurchaseInfo',res.data)
         return
       }
-      commit('changePurchaseInfo', res.data)
     },
   },
   mutations: {

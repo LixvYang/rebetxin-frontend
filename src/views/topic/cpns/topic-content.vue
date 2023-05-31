@@ -149,7 +149,7 @@
           hint="Enter input your amount"
         ></v-text-field>
 
-        <div style="display: flex; justify-content: space-between;">
+        <div style="display: flex; justify-content:space-around;">
           <v-btn variant="text">
             退款最大金额 {{ maxRefundAmount.value }}
           </v-btn>
@@ -219,20 +219,21 @@ export default defineComponent({
     const feeAmount = computed(() => {
       if (BetSelect.value === "0") {
         const price = parseFloat(purchase.value.yes_price!);
-        return ref(price * 0.1);
+        return ref((price * 0.1).toFixed(2));
       } else {
         const price = parseFloat(purchase.value.no_price!);
-        return ref(price * 0.1);
+        return ref((price * 0.1).toFixed(2));
       }
     })
 
     const maxRefundAmount = computed(() => {
       if (BetSelect.value === "0") {
         const price = parseFloat(purchase.value.yes_price!);
-        return ref(price * 0.9);
+        return ref((price * 0.9).toFixed(2));
+
       } else {
         const price = parseFloat(purchase.value.no_price!);
-        return ref(price * 0.9);
+        return ref((price * 0.9).toFixed(2));
       }
     });
 
@@ -240,7 +241,6 @@ export default defineComponent({
     const params = route.path.split('/'); // 将URL按照'/'分割成数组
     const tid = params[3];
     store.dispatch('main/handleTopicContent', {tid: tid, uid: store.state.user.userInfo.uid})
-
     if (store.state.user.userInfo.uid) {
       store.dispatch('purchase/handleGetPurchase', {uid: store.state.user.userInfo.uid, tid: tid})
     }
@@ -266,12 +266,16 @@ export default defineComponent({
         return
       }
 
-      const res = await createRefund(topic.value.tid!, store.state.user.userInfo.uid!, Number(BetSelect.value))
+      const res = await createRefund(topic.value.tid!, refundAmount.value.toString(), Number(BetSelect.value))
       if (res.code !== 0) {
         showToast('退款失败')
         return
       }
       showToast('退款成功')
+      store.dispatch('main/handleTopicContent', {tid: tid, uid: store.state.user.userInfo.uid})
+      if (store.state.user.userInfo.uid) {
+        store.dispatch('purchase/handleGetPurchase', {uid: store.state.user.userInfo.uid, tid: tid})
+      }
     }
 
     const HandleReturnClick = () => {
@@ -360,11 +364,18 @@ export default defineComponent({
               pollingInterval = setInterval(async ()=>{
                 const res = await getSnapshot(uuid);
                   if (res.code === 0) {
-                    showToast('Success Bet!');
+                    showToast('下注成功!');
                     payBtnLoading.value = false;
                     betDialog.value = false;
                     uuid = uuidv4();
                     clearInterval(pollingInterval); // 清除轮询定时器
+
+                    const params = route.path.split('/'); // 将URL按照'/'分割成数组
+                    const tid = params[3];
+                    store.dispatch('main/handleTopicContent', {tid: tid, uid: store.state.user.userInfo.uid})
+                    if (store.state.user.userInfo.uid) {
+                      store.dispatch('purchase/handleGetPurchase', {uid: store.state.user.userInfo.uid, tid: tid})
+                    }
 
                     resolve(true);
                   }
@@ -373,9 +384,6 @@ export default defineComponent({
           },
         })
       } catch (error) {
-        console.log('====================================');
-        console.log(error);
-        console.log('====================================');
         payBtnLoading.value = false;
         clearTimeout(pollingInterval)
         showToast('取消支付')

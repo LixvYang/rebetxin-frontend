@@ -10,7 +10,7 @@
         :loading="loading"
         density="compact"
         variant="solo"
-        label="Search templates"
+        label="Search"
         append-inner-icon="mdi-magnify"
         single-line
         hide-details

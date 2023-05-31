@@ -18,9 +18,9 @@ export enum MixinConfig {
 
 
 if (process.env.NODE_ENV === 'development') {
-  BASE_URL = 'http://127.0.0.1:8888/api/v1'
+  BASE_URL = 'http://0.0.0.0:8888/api/v1'
 } else if (process.env.NODE_ENV === 'production') {
-  BASE_URL = 'http://43.143.154.162:3000/api/v1/'
+  BASE_URL = 'https://demo.betxin.one/api/v1/'
 } else {
   BASE_URL = 'http://localhost/api/v1/'
 }

@@ -102,18 +102,18 @@ export default defineComponent({
 
     const handleCollctClick = async () => {
       if (!store.state.user.userInfo.uid) {
-        showToast('Please Login.')
+        showToast('请先登陆.')
       }
       if (isCollect.value == '') {
         const res = await createCollect(props.topic.tid)
         if (res.code === 0) {
-          showToast('Collect Success')
+          showToast('收藏成功')
           store.dispatch('main/handleCollectAction', {tid: props.topic.tid, is_collect: 1, category: props.topic.category.category_name, collect: props.collect, purchase: props.purchase})
         }
       } else {
         const res = await deleteCollect(props.topic.tid)
         if (res.code === 0) {
-          showToast('Delete Success')
+          showToast('取消收藏')
           store.dispatch('main/handleCollectAction', {tid: props.topic.tid, is_collect: 0, category: props.topic.category.category_name, collect: props.collect, purchase: props.purchase})
         }
         store.dispatch('main/handleTopicContent', {tid: props.topic.tid, uid: store.state.user.userInfo.uid})
